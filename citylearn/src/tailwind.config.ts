@@ -10,18 +10,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "#00d2ff", // Electric Blue
-        background: "#0e1417", // Deep Navy/Charcoal
-        surface: "#161d1f",
-        outline: "#859399",
-        error: "#ffb4ab",
-        success: "#00e38b",
+        primary: "hsl(var(--primary))",
+        background: "hsl(var(--background))",
+        surface: "hsl(var(--card))",
+        outline: "hsl(var(--border))",
+        error: "hsl(var(--destructive))",
+        success: "#10b981",
       },
       fontFamily: {
-        sans: ["var(--font-nunito)", "sans-serif"],
+        sans: ["var(--font-noto-sans)", "sans-serif"],
+        display: ["var(--font-eb-garamond)", "serif"],
       },
     },
   },
   plugins: [],
 };
-export default config;
+export default config;

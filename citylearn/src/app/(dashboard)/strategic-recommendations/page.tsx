@@ -4,27 +4,14 @@
 import React, { useEffect } from "react";
 
 export default function Page() {
-
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const runScript = () => {
       try {
-        // Micro-interaction for hover effects and dynamic mapping
-        document.querySelectorAll('.glass-card').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                card.style.setProperty('--mouse-x', `${x}px`);
-                card.style.setProperty('--mouse-y', `${y}px`);
-            });
-        });
-
-        // Pulsing Neural Indicator randomization
-        const pulses = document.querySelectorAll('.pulse-neural');
-        pulses.forEach(p => {
-            p.style.animationDuration = (2 + Math.random() * 3) + 's';
-            p.style.animationDelay = Math.random() * 2 + 's';
+        // Pulsing neural indicators randomization
+        const pulses = document.querySelectorAll(".pulse-neural");
+        pulses.forEach((p) => {
+          p.style.animationDuration = 2 + Math.random() * 3 + "s";
+          p.style.animationDelay = Math.random() * 2 + "s";
         });
       } catch (e) {
         console.error("Error running page script:", e);
@@ -35,306 +22,255 @@ export default function Page() {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: `@layer base {
-            body {
-                @apply bg-background text-on-surface font-body-md;
-                margin: 0;
-                overflow-x: hidden;
-            }
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .glass-card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
-            pointer-events: none;
-        }
-
-        .glow-primary {
-            box-shadow: 0 0 20px rgba(71, 214, 255, 0.4);
-        }
-
-        .glow-button:hover {
-            box-shadow: 0 0 30px rgba(0, 210, 255, 0.6);
-            transform: translateY(-2px);
-        }
-
+      <style dangerouslySetInnerHTML={{ __html: `
         .pulse-neural {
-            animation: neural-pulse 3s infinite ease-in-out;
+          animation: neural-pulse 3s infinite ease-in-out;
         }
 
         @keyframes neural-pulse {
-            0%, 100% { opacity: 0.4; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.25); }
         }
 
         .neon-line {
-            stroke-dasharray: 8;
-            animation: dash 20s linear infinite;
+          stroke-dasharray: 8;
+          animation: dash 25s linear infinite;
         }
 
         @keyframes dash {
-            to { stroke-dashoffset: -1000; }
+          to { stroke-dashoffset: -1000; }
         }
 
         .map-container {
-            mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
-        }` }} />
-      <div className="bg-background flex">{/* SideNavBar */}
-<aside className="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 border-r border-white/10 bg-surface/15 backdrop-blur-2xl py-8 z-[60] shadow-[0_0_20px_rgba(71,214,255,0.1)]">
-<div className="px-6 mb-10 flex items-center gap-3">
-<div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-<span className="material-symbols-outlined text-on-primary text-sm">hub</span>
-</div>
-<div>
-<h1 className="font-headline-md text-headline-md font-bold text-primary leading-tight">CityLearn</h1>
-<p className="font-label-caps text-[10px] text-on-surface-variant opacity-60">Neural Intelligence</p>
-</div>
-</div>
-<nav className="flex-1 space-y-1">
-<a className="flex items-center px-6 py-3 text-on-surface-variant font-body-md hover:bg-white/5 hover:text-primary transition-all" href="/dashboard">
-<span className="material-symbols-outlined mr-4">dashboard</span>Dashboard
-            </a>
-<a className="flex items-center px-6 py-3 text-on-surface-variant font-body-md hover:bg-white/5 hover:text-primary transition-all" href="/analysis-engine">
-<span className="material-symbols-outlined mr-4">analytics</span>Analysis
-            </a>
-<a className="flex items-center px-6 py-3 text-on-surface-variant font-body-md hover:bg-white/5 hover:text-primary transition-all" href="/institutional-memory-match">
-<span className="material-symbols-outlined mr-4">compare_arrows</span>Similar Events
-            </a>
-<a className="flex items-center px-6 py-3 text-on-surface-variant font-body-md hover:bg-white/5 hover:text-primary transition-all" href="/predictive-intelligence">
-<span className="material-symbols-outlined mr-4">online_prediction</span>Predictions
-            </a>
-{/* Active Tab */}
-<a className="flex items-center px-6 py-3 text-primary font-bold border-r-2 border-primary bg-white/5 transition-all" href="/strategic-recommendations">
-<span className="material-symbols-outlined mr-4">recommend</span>Recommendations
-            </a>
-<a className="flex items-center px-6 py-3 text-on-surface-variant font-body-md hover:bg-white/5 hover:text-primary transition-all" href="/scenario-simulator">
-<span className="material-symbols-outlined mr-4">precision_manufacturing</span>Simulator
-            </a>
-<a className="flex items-center px-6 py-3 text-on-surface-variant font-body-md hover:bg-white/5 hover:text-primary transition-all" href="#">
-<span className="material-symbols-outlined mr-4">replay</span>Replay
-            </a>
-<a className="flex items-center px-6 py-3 text-on-surface-variant font-body-md hover:bg-white/5 hover:text-primary transition-all" href="/knowledge-graph">
-<span className="material-symbols-outlined mr-4">hub</span>Knowledge Graph
-            </a>
-<a className="flex items-center px-6 py-3 text-on-surface-variant font-body-md hover:bg-white/5 hover:text-primary transition-all" href="/learning-loop">
-<span className="material-symbols-outlined mr-4">psychology</span>Learning Loop
-            </a>
-</nav>
-<div className="px-6 mt-auto">
-<div className="p-4 rounded-xl glass-card">
-<p className="font-label-caps text-[10px] text-tertiary mb-1">SYSTEM UPTIME</p>
-<div className="flex items-center gap-2">
-<span className="w-2 h-2 rounded-full bg-tertiary pulse-neural"></span>
-<span className="font-data-mono text-xs text-on-surface">99.98% Synced</span>
-</div>
-</div>
-</div>
-</aside>
-{/* Main Content Area */}
-<main className="flex-1 md:ml-64 min-h-screen flex flex-col relative overflow-hidden">
-{/* Background Animation */}
-{/* TopAppBar */}
-<header className="sticky top-0 z-50 flex justify-between items-center w-full px-8 h-16 bg-surface/10 backdrop-blur-3xl border-b border-white/10">
-<div className="flex items-center gap-8">
-<div className="flex items-center gap-4 bg-white/5 px-4 py-2 rounded-full border border-white/5">
-<span className="material-symbols-outlined text-primary text-sm">search</span>
-<input className="bg-transparent border-none focus:ring-0 text-body-md text-on-surface-variant w-64 placeholder-on-surface-variant/40" placeholder="Search neural patterns..." type="text"/>
-</div>
-</div>
-<div className="flex items-center gap-6">
-<button className="text-on-surface-variant hover:text-primary transition-colors">
-<span className="material-symbols-outlined">sensors</span>
-</button>
-<button className="text-on-surface-variant hover:text-primary transition-colors relative">
-<span className="material-symbols-outlined">notifications</span>
-<span className="absolute top-0 right-0 w-2 h-2 bg-secondary rounded-full"></span>
-</button>
-<div className="h-8 w-[1px] bg-white/10"></div>
-<div className="flex items-center gap-3">
-<span className="text-right hidden sm:block">
-<p className="font-label-caps text-[10px] text-on-surface">ADMIN_04</p>
-<p className="font-data-mono text-[9px] text-on-surface-variant">L7 ACCESS</p>
-</span>
-<img alt="Administrator Profile" className="w-10 h-10 rounded-full border border-primary/30" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMtJNatcTcZGzwDTRdBsTwkVXdEwj9Rpuc4asNYkuAYP1UZWCGfgT_cNeHB67Z_eSBIx1q86nu8vX_loqVp1K264sf3YlqWVDO8G47P-wxzu6Sv-DivbflDlCO59ORusWLsN655u1TQTlae2tZDN8EdlIvwLsGLqwoUT6fS-idroDtx_l-XRByWLDz5vVfPKfSy4MTR9tThgyb1Ouku8DVbYj4XnNu6i9VxudTp8sRN0N253KlfNAY-uHAxPjzwiDADhFD-Q7FM2E"/>
-</div>
-</div>
-</header>
-{/* Page Content */}
-<div className="flex-1 px-8 py-8 relative z-10 grid grid-cols-12 gap-8">
-{/* Header Section */}
-<div className="col-span-12 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4">
-<div>
-<div className="flex items-center gap-3 mb-2">
-<span className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary rounded-full font-label-caps text-[10px]">PREDICTIVE RESPONSE</span>
-<span className="text-on-surface-variant font-data-mono text-xs">LOG_ID: #X7G-ANOMALY-0092</span>
-</div>
-<h2 className="font-headline-xl text-headline-xl text-on-surface leading-none tracking-tight">Response Strategies for Sector 7-G Anomaly</h2>
-</div>
-<div className="flex gap-4">
-<div className="glass-card px-6 py-4 rounded-xl min-w-[160px]">
-<p className="font-label-caps text-[10px] text-on-surface-variant mb-1">IMPACT SCORE</p>
-<div className="flex items-baseline gap-2">
-<span className="font-headline-md text-primary text-3xl">94</span>
-<span className="font-data-mono text-sm text-on-surface-variant">/ 100</span>
-</div>
-</div>
-<div className="glass-card px-6 py-4 rounded-xl min-w-[160px]">
-<p className="font-label-caps text-[10px] text-on-surface-variant mb-1">EFFICIENCY</p>
-<div className="flex items-baseline gap-2">
-<span className="font-headline-md text-tertiary text-3xl">+22%</span>
-<span className="material-symbols-outlined text-tertiary text-sm">trending_up</span>
-</div>
-</div>
-</div>
-</div>
-{/* Main Map View (Bento Grid Style) */}
-<div className="col-span-12 lg:col-span-8 space-y-8">
-<div className="glass-card rounded-2xl h-[500px] relative overflow-hidden group">
-<div className="absolute inset-0 bg-[#0e0e10]">
-<img className="w-full h-full object-cover opacity-20 grayscale scale-110 blur-sm" data-alt="A dark, high-contrast overhead map of a futuristic urban city grid with complex street patterns. The lighting is moody and technological, using a palette of deep blacks, greys, and faint digital glows. The map shows intricate details of intersections and buildings, providing a realistic yet stylized foundation for a neural intelligence monitoring system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQKhfAB-NqVn4jrd8F9yh22RO0Sz0KzRTcQYzP8x0Ag5Y1cCiA4pPp55_Vq0UAcxV0xrwFyV5C3RqHw0Af4zRN8rHIJ77WeJgzP_Om88txChfruf_RZD54Eux7uvUAjn3DY7yYlNLAy0NXZQ0_9fHUczE93RdmhOA_NzQDYW7ektCLzCpSdnlXnVoNc6FQW3Zlxu_FZFj9pPHMqESi1NjhUVQa2WmrtiMclksru9E2im1z0CZvzz3YhMrna1vXxfA5eRmLg2gahmU"/>
-{/* Animated SVG Map Overlay */}
-<svg className="absolute inset-0 w-full h-full map-container" fill="none" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
-{/* Intersection Points */}
-<circle className="pulse-neural" cx="300" cy="200" fill="#47d6ff" r="4"></circle>
-<circle className="pulse-neural" cx="500" cy="400" fill="#47d6ff" r="4" style={{"animationDelay": "1s"}}></circle>
-<circle className="pulse-neural" cx="700" cy="250" fill="#47d6ff" r="4" style={{"animationDelay": "2s"}}></circle>
-{/* Glowing Routes */}
-<path className="neon-line" d="M300 200 L500 400 L700 250" stroke="#00d2ff" strokeDasharray="10 15" strokeWidth="3" style={{"filter": "drop-shadow(0 0 8px #00d2ff)"}}></path>
-<path className="neon-line" d="M300 200 L150 150 M500 400 L550 550 M700 250 L850 300" stroke="#00d2ff" strokeDasharray="5 10" strokeWidth="2"></path>
-{/* Zone Highlights */}
-<rect fill="#00d2ff" fillOpacity="0.05" height="100" stroke="#00d2ff" strokeWidth="1" width="100" x="450" y="350"></rect>
-<text fill="#00d2ff" font-family="Space Mono" font-size="10" x="460" y="375">SECTOR_ANOMALY_CORE</text>
-</svg>
-</div>
-<div className="absolute top-6 left-6 flex flex-col gap-2">
-<div className="glass-card bg-surface/80 border-white/20 rounded-lg px-4 py-2 flex items-center gap-3">
-<span className="material-symbols-outlined text-primary text-sm">navigation</span>
-<span className="font-data-mono text-xs text-on-surface">LIVE: Diversion Vectors Active</span>
-</div>
-</div>
-<div className="absolute bottom-6 right-6">
-<div className="glass-card bg-surface/90 border-white/20 p-4 rounded-xl flex flex-col gap-2 min-w-[200px]">
-<p className="font-label-caps text-[10px] text-on-surface-variant">COST ESTIMATE</p>
-<p className="font-headline-md text-on-surface text-2xl">$4.2k <span className="text-xs font-normal opacity-50">/ deployment</span></p>
-</div>
-</div>
-</div>
-{/* Recommendation Cards Cluster */}
-<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-<div className="glass-card p-6 rounded-2xl group hover:border-primary/50 transition-all cursor-pointer">
-<div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6 border border-primary/20 group-hover:bg-primary/20 transition-colors">
-<span className="material-symbols-outlined text-primary" style={{"fontVariationSettings": "'FILL' 1"}}>local_police</span>
-</div>
-<h4 className="font-headline-md text-on-surface mb-2">Officer Deployment</h4>
-<p className="font-body-md text-on-surface-variant text-sm mb-4 leading-relaxed">Primary response unit allocation for localized containment and traffic stabilization.</p>
-<div className="flex justify-between items-center pt-4 border-t border-white/10">
-<span className="font-label-caps text-[10px] text-primary">PRIORITY: HIGH</span>
-<span className="material-symbols-outlined text-on-surface-variant text-sm">arrow_forward</span>
-</div>
-</div>
-<div className="glass-card p-6 rounded-2xl group hover:border-secondary/50 transition-all cursor-pointer">
-<div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center mb-6 border border-secondary/20 group-hover:bg-secondary/20 transition-colors">
-<span className="material-symbols-outlined text-secondary" style={{"fontVariationSettings": "'FILL' 1"}}>fence</span>
-</div>
-<h4 className="font-headline-md text-on-surface mb-2">Barricade Plan</h4>
-<p className="font-body-md text-on-surface-variant text-sm mb-4 leading-relaxed">Hard control measures involving autonomous barrier systems to prevent corridor saturation.</p>
-<div className="flex justify-between items-center pt-4 border-t border-white/10">
-<span className="font-label-caps text-[10px] text-secondary">MODE: HARD CONTROL</span>
-<span className="material-symbols-outlined text-on-surface-variant text-sm">arrow_forward</span>
-</div>
-</div>
-<div className="glass-card p-6 rounded-2xl group hover:border-tertiary/50 transition-all cursor-pointer">
-<div className="w-12 h-12 bg-tertiary/10 rounded-xl flex items-center justify-center mb-6 border border-tertiary/20 group-hover:bg-tertiary/20 transition-colors">
-<span className="material-symbols-outlined text-tertiary" style={{"fontVariationSettings": "'FILL' 1"}}>alt_route</span>
-</div>
-<h4 className="font-headline-md text-on-surface mb-2">Diversion Strategy</h4>
-<p className="font-body-md text-on-surface-variant text-sm mb-4 leading-relaxed">Dynamic rerouting through smart-infrastructure signal manipulation to optimize flow.</p>
-<div className="flex justify-between items-center pt-4 border-t border-white/10">
-<span className="font-label-caps text-[10px] text-tertiary">TYPE: FLOW OPT</span>
-<span className="material-symbols-outlined text-on-surface-variant text-sm">arrow_forward</span>
-</div>
-</div>
-</div>
-</div>
-{/* Sidebar Statistics */}
-<div className="col-span-12 lg:col-span-4 space-y-8">
-<div className="glass-card p-8 rounded-3xl h-full flex flex-col">
-<div className="mb-10">
-<h3 className="font-headline-md text-on-surface mb-6">Neural Analysis</h3>
-<div className="space-y-6">
-<div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
-<div className="flex items-center gap-4">
-<span className="material-symbols-outlined text-primary-container">savings</span>
-<div>
-<p className="font-label-caps text-[10px] text-on-surface-variant">RESOURCE SAVINGS</p>
-<p className="font-headline-md text-on-surface">18.4%</p>
-</div>
-</div>
-<span className="font-data-mono text-[10px] text-tertiary">ESTIMATED</span>
-</div>
-<div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
-<div className="flex items-center gap-4">
-<span className="material-symbols-outlined text-secondary">speed</span>
-<div>
-<p className="font-label-caps text-[10px] text-on-surface-variant">OPTIMIZATION TIME</p>
-<p className="font-headline-md text-on-surface">142ms</p>
-</div>
-</div>
-<span className="font-data-mono text-[10px] text-tertiary">PEAK</span>
-</div>
-</div>
-</div>
-<div className="mb-10">
-<p className="font-label-caps text-[10px] text-on-surface-variant mb-4">CONFIDENCE THRESHOLD</p>
-<div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-<div className="h-full bg-primary glow-primary w-[88%]"></div>
-</div>
-<div className="flex justify-between mt-2">
-<span className="font-data-mono text-[10px] text-on-surface-variant">Min: 70%</span>
-<span className="font-data-mono text-[10px] text-primary">Current: 88%</span>
-</div>
-</div>
-<div className="flex-1 flex flex-col justify-end gap-6">
-<div className="p-4 rounded-2xl bg-primary/5 border border-primary/20">
-<p className="font-body-md text-on-surface-variant text-sm italic">"Implementing current diversion vectors will reduce gridlock in adjacent Sector 7-F by approximately 14% within 10 minutes of activation."</p>
-</div>
-<button className="glow-button glow-primary w-full py-6 bg-primary text-on-primary rounded-2xl font-headline-md flex items-center justify-center gap-3 transition-all active:scale-95">
-<span className="material-symbols-outlined">verified</span>
-                            Approve Recommendation
-                        </button>
-<button className="w-full py-4 bg-transparent border border-white/10 text-on-surface-variant rounded-2xl font-label-caps text-xs hover:bg-white/5 transition-all">
-                            SIMULATE VARIANT B
-                        </button>
-</div>
-</div>
-</div>
-</div>
-{/* Footer / Global Status */}
-<footer className="px-8 py-4 bg-surface/5 border-t border-white/5 mt-auto flex items-center justify-between">
-<div className="flex items-center gap-4">
-<div className="flex items-center gap-2">
-<span className="w-2 h-2 rounded-full bg-tertiary"></span>
-<span className="font-data-mono text-[10px] text-on-surface-variant uppercase tracking-widest">Mainframe Connected</span>
-</div>
-<div className="w-[1px] h-4 bg-white/10"></div>
-<p className="font-data-mono text-[10px] text-on-surface-variant">STABILITY_METRIC: 0.99224</p>
-</div>
-<div className="flex items-center gap-6 font-data-mono text-[10px] text-on-surface-variant/60">
-<span>VER: 4.1.2-ALPHA</span>
-<span>© 2024 CITYLEARN INTELLIGENCE</span>
-</div>
-</footer>
-</main></div>
+          mask-image: radial-gradient(circle at center, black 75%, transparent 100%);
+        }
+
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+          vertical-align: middle;
+        }
+      ` }} />
+
+      <div className="max-w-7xl mx-auto space-y-8">
+        
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="px-3 py-1 bg-amber-50 border border-amber-200 text-amber-800 rounded-full text-[10px] font-bold tracking-wider uppercase">
+                Predictive Response
+              </span>
+              <span className="text-muted-foreground font-mono text-xs">
+                LOG_ID: #X7G-ANOMALY-0092
+              </span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+              Response Strategies for Sector 7-G Anomaly
+            </h1>
+            <p className="text-muted-foreground text-sm max-w-xl">
+              Neural intelligence recommendation matrix for containment and optimization of Sector 7-G.
+            </p>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="bg-white border border-border shadow-sm px-6 py-4 rounded-xl min-w-[150px]">
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider mb-1">
+                Impact Score
+              </p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-primary">94</span>
+                <span className="font-mono text-xs text-muted-foreground">/ 100</span>
+              </div>
+            </div>
+            <div className="bg-white border border-border shadow-sm px-6 py-4 rounded-xl min-w-[150px]">
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider mb-1">
+                Efficiency Gains
+              </p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-green-600">+22%</span>
+                <span className="material-symbols-outlined text-green-600 text-sm">trending_up</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Bento Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* Left Area: Map and Recommendations list (8 cols) */}
+          <div className="lg:col-span-8 space-y-8">
+            
+            {/* Map Visualization Card */}
+            <div className="bg-white border border-border shadow-sm rounded-2xl h-[450px] relative overflow-hidden group">
+              <div className="absolute inset-0 bg-slate-50/50">
+                <img
+                  className="w-full h-full object-cover opacity-10 grayscale scale-110 blur-[1px] pointer-events-none"
+                  alt="City Grid Map"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQKhfAB-NqVn4jrd8F9yh22RO0Sz0KzRTcQYzP8x0Ag5Y1cCiA4pPp55_Vq0UAcxV0xrwFyV5C3RqHw0Af4zRN8rHIJ77WeJgzP_Om88txChfruf_RZD54Eux7uvUAjn3DY7yYlNLAy0NXZQ0_9fHUczE93RdmhOA_NzQDYW7ektCLzCpSdnlXnVoNc6FQW3Zlxu_FZFj9pPHMqESi1NjhUVQa2WmrtiMclksru9E2im1z0CZvzz3YhMrna1vXxfA5eRmLg2gahmU"
+                />
+                
+                {/* SVG Route Overlays */}
+                <svg className="absolute inset-0 w-full h-full map-container" fill="none" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
+                  {/* Glowing Routes */}
+                  <path className="neon-line" d="M300 200 L500 400 L700 250" stroke="hsl(var(--secondary))" strokeDasharray="8 12" strokeWidth="2.5"></path>
+                  <path className="neon-line" d="M300 200 L150 150 M500 400 L550 550 M700 250 L850 300" stroke="hsl(var(--primary))" strokeDasharray="4 8" strokeWidth="1.5" opacity="0.6"></path>
+                  
+                  {/* Zone Highlights */}
+                  <rect fill="hsl(var(--secondary))" fillOpacity="0.06" height="100" stroke="hsl(var(--secondary))" strokeWidth="1" width="120" x="440" y="350" rx="4"></rect>
+                  <text fill="hsl(var(--secondary))" fontFamily="var(--font-noto-sans)" fontSize="9" fontWeight="bold" letterSpacing="1" x="450" y="375">SECTOR_ANOMALY_CORE</text>
+
+                  {/* Intersection Points */}
+                  <circle className="pulse-neural" cx="300" cy="200" fill="hsl(var(--secondary))" r="5"></circle>
+                  <circle className="pulse-neural" cx="500" cy="400" fill="hsl(var(--secondary))" r="5" style={{ animationDelay: "1s" }}></circle>
+                  <circle className="pulse-neural" cx="700" cy="250" fill="hsl(var(--primary))" r="5" style={{ animationDelay: "2s" }}></circle>
+                </svg>
+              </div>
+
+              {/* Map Floating UI overlays */}
+              <div className="absolute top-4 left-4">
+                <div className="bg-white/90 backdrop-blur-md border border-border shadow-sm rounded-lg px-4 py-2 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-secondary text-sm">navigation</span>
+                  <span className="text-xs font-semibold text-foreground">LIVE: Diversion Vectors Active</span>
+                </div>
+              </div>
+              <div className="absolute bottom-4 right-4">
+                <div className="bg-white/90 backdrop-blur-md border border-border shadow-sm p-4 rounded-xl flex flex-col gap-1 min-w-[180px]">
+                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Cost Estimate</p>
+                  <p className="text-xl font-bold text-foreground">$4.2k <span className="text-xs font-normal text-muted-foreground">/ deployment</span></p>
+                </div>
+              </div>
+            </div>
+
+            {/* Recommendation Cards Cluster - highlighted with Amber/Yellow accents */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* Card 1: Amber Highlighted (High Priority) */}
+              <div className="bg-amber-50/20 border border-amber-200/80 p-6 rounded-2xl group hover:border-amber-400 hover:shadow-md transition-all cursor-pointer">
+                <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-6 border border-amber-200 text-amber-700 transition-colors">
+                  <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>local_police</span>
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-2">Officer Deployment</h3>
+                <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
+                  Primary response unit allocation for localized containment and traffic stabilization.
+                </p>
+                <div className="flex justify-between items-center pt-4 border-t border-amber-200/40">
+                  <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Priority: High</span>
+                  <span className="material-symbols-outlined text-amber-600 text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </div>
+              </div>
+
+              {/* Card 2: Amber Highlighted (Alternate Control) */}
+              <div className="bg-amber-50/20 border border-amber-200/80 p-6 rounded-2xl group hover:border-amber-400 hover:shadow-md transition-all cursor-pointer">
+                <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-6 border border-amber-200 text-amber-700 transition-colors">
+                  <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>fence</span>
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-2">Barricade Plan</h3>
+                <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
+                  Hard control measures involving autonomous barrier systems to prevent corridor saturation.
+                </p>
+                <div className="flex justify-between items-center pt-4 border-t border-amber-200/40">
+                  <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Mode: Hard Control</span>
+                  <span className="material-symbols-outlined text-amber-600 text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </div>
+              </div>
+
+              {/* Card 3: Amber/Yellow Highlighted */}
+              <div className="bg-amber-50/10 border border-amber-200/60 p-6 rounded-2xl group hover:border-amber-400 hover:shadow-md transition-all cursor-pointer">
+                <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center mb-6 border border-amber-200/60 text-amber-600 transition-colors">
+                  <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>alt_route</span>
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-2">Diversion Strategy</h3>
+                <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
+                  Dynamic rerouting through smart-infrastructure signal manipulation to optimize flow.
+                </p>
+                <div className="flex justify-between items-center pt-4 border-t border-amber-200/40">
+                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Type: Flow Opt</span>
+                  <span className="material-symbols-outlined text-amber-500 text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Right Area: Sidebar Statistics (4 cols) */}
+          <div className="lg:col-span-4">
+            <div className="bg-white border border-border shadow-sm p-8 rounded-2xl h-full flex flex-col justify-between space-y-8">
+              
+              <div className="space-y-6">
+                <h3 className="text-xl font-bold text-foreground">Neural Analysis</h3>
+                
+                <div className="space-y-4">
+                  
+                  {/* Metric 1 */}
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-border">
+                    <div className="flex items-center gap-4">
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                        <span className="material-symbols-outlined text-lg">savings</span>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Resource Savings</p>
+                        <p className="text-lg font-bold text-foreground">18.4%</p>
+                      </div>
+                    </div>
+                    <span className="font-mono text-[9px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-200">ESTIMATED</span>
+                  </div>
+
+                  {/* Metric 2 */}
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-border">
+                    <div className="flex items-center gap-4">
+                      <div className="w-8 h-8 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center">
+                        <span className="material-symbols-outlined text-lg">speed</span>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Optimization Time</p>
+                        <p className="text-lg font-bold text-foreground">142ms</p>
+                      </div>
+                    </div>
+                    <span className="font-mono text-[9px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded border border-primary/10">PEAK</span>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Confidence Threshold */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Confidence Threshold</p>
+                  <span className="text-xs font-bold text-primary">88%</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-primary rounded-full" style={{ width: "88%" }}></div>
+                </div>
+                <div className="flex justify-between text-[10px] text-muted-foreground font-mono">
+                  <span>Min: 70%</span>
+                  <span>Target: 90%</span>
+                </div>
+              </div>
+
+              {/* Quote info and buttons */}
+              <div className="space-y-4 pt-4 border-t border-border">
+                <div className="p-4 rounded-xl bg-amber-50/30 border border-amber-100 text-amber-900">
+                  <p className="text-xs italic leading-relaxed text-amber-800">
+                    "Implementing current diversion vectors will reduce gridlock in adjacent Sector 7-F by approximately 14% within 10 minutes of activation."
+                  </p>
+                </div>
+                
+                <button className="w-full py-4 bg-primary hover:bg-primary/95 text-white rounded-xl font-semibold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                  <span className="material-symbols-outlined text-lg">verified</span>
+                  Approve Recommendation
+                </button>
+                
+                <button className="w-full py-3 bg-transparent border border-border hover:bg-slate-50 text-muted-foreground hover:text-foreground rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
+                  Simulate Variant B
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
     </>
   );
 }

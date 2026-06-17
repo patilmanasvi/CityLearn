@@ -1,14 +1,19 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
-import { Nunito_Sans } from "next/font/google";
+import { EB_Garamond, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/shared/theme-provider";
-import SideNavBar from "@/components/navigation/SideNavBar";
-import TopAppBar from "@/components/navigation/TopAppBar";
 
-const nunito = Nunito_Sans({
+const ebGaramond = EB_Garamond({
   subsets: ["latin"],
-  variable: "--font-nunito",
+  variable: "--font-eb-garamond",
+  weight: ["400", "500", "600", "700"],
+});
+
+const notoSans = Noto_Sans({
+  subsets: ["latin"],
+  variable: "--font-noto-sans",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -25,13 +30,13 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Nunito+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
       </head>
-      <body className={`${nunito.variable} font-sans antialiased`}>
+      <body className={`${ebGaramond.variable} ${notoSans.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
-          enableSystem
+          forcedTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           {children}
@@ -40,3 +45,4 @@ export default function RootLayout({
     </html>
   );
 }
+
