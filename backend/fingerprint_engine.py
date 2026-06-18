@@ -129,7 +129,7 @@ def _coerce_bool(series: pd.Series, default: bool = False) -> pd.Series:
 
 def _coerce_datetime(series: pd.Series) -> pd.Series:
     """Parse datetime column; coerce errors to NaT."""
-    return pd.to_datetime(series, errors="coerce", infer_datetime_format=True)
+    return pd.to_datetime(series, errors="coerce")
 
 
 def _coerce_float(series: pd.Series) -> pd.Series:
@@ -161,6 +161,10 @@ def clean_dataset(df: pd.DataFrame) -> pd.DataFrame:
         Cleaned dataframe.
     """
     df = df.copy()
+
+    # If id is missing, generate it sequentially
+    if "id" not in df.columns:
+        df["id"] = range(1, len(df) + 1)
 
     # ── Validate required columns ──────────────────────────────────────────
     missing_req = [c for c in REQUIRED_COLUMNS if c not in df.columns]
