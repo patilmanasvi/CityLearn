@@ -78,8 +78,6 @@ Learn & Improve
 
 #  CityLearn Engine
 
-At the heart of CityLearn is EventDNA.
-
 Every traffic event is converted into a unique fingerprint using:
 
 * Event Type
