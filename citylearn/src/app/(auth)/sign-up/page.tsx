@@ -221,13 +221,55 @@ export default function Page() {
                 return;
               }
 
+              const signupForm = document.getElementById("signup-form") as HTMLFormElement | null;
+              const formData = signupForm ? new FormData(signupForm) : null;
+              const passwordField = document.getElementById("password") as HTMLInputElement | null;
+              const confirmPasswordField = document.getElementById("confirm-password") as HTMLInputElement | null;
+              const roleField = signupForm?.querySelector('#step-2-content input[type="text"]') as HTMLInputElement | null;
+              const departmentField = signupForm?.querySelector('#step-2-content select') as HTMLSelectElement | null;
+
+              const passwordVal = passwordField?.value || "";
+              const confirmPasswordVal = confirmPasswordField?.value || "";
+
+              if (passwordVal !== confirmPasswordVal) {
+                alert("Passwords do not match.");
+                return;
+              }
+
               // Submit logic
               nextBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm mr-1">progress_activity</span> Deploying...';
               nextBtn.disabled = true;
-              setTimeout(() => {
-                alert("Account initialization sequence complete. Redirecting to Dashboard.");
-                window.location.href = "/dashboard";
-              }, 2000);
+
+              fetch("/api/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  name: formData?.get("name") || "",
+                  email: formData?.get("email") || "",
+                  password: passwordVal,
+                  department: departmentField?.value || "",
+                  role: roleField?.value || "",
+                  country: formData?.get("country") || "",
+                  state: formData?.get("state") || "",
+                  city: formData?.get("city") || "",
+                }),
+              })
+                .then(async (response) => {
+                  const data = await response.json();
+                  if (!response.ok || !data.success) {
+                    alert(data.message || "Registration failed. Please try again.");
+                    nextBtn.innerHTML = '<span>Next Step</span><span class="material-symbols-outlined text-base">how_to_reg</span>';
+                    nextBtn.disabled = false;
+                    return;
+                  }
+                  alert("Account initialization sequence complete. Redirecting to Dashboard.");
+                  window.location.href = "/dashboard";
+                })
+                .catch(() => {
+                  alert("Unable to connect. Please try again.");
+                  nextBtn.innerHTML = '<span>Next Step</span><span class="material-symbols-outlined text-base">how_to_reg</span>';
+                  nextBtn.disabled = false;
+                });
             }
           });
         }
@@ -376,7 +418,7 @@ export default function Page() {
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">Confirm Password</label>
                     <div className="relative group">
-                      <input className="w-full bg-slate-50 border border-border rounded-lg pl-4 pr-12 py-3 text-sm font-sans text-foreground transition-all focus:bg-white focus:border-primary" placeholder="••••••••" type={showConfirmPassword ? "text" : "password"} required />
+                      <input className="w-full bg-slate-50 border border-border rounded-lg pl-4 pr-12 py-3 text-sm font-sans text-foreground transition-all focus:bg-white focus:border-primary" id="confirm-password" placeholder="••••••••" type={showConfirmPassword ? "text" : "password"} required />
                       <button className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary p-1" type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                         <span className="material-symbols-outlined text-base">{showConfirmPassword ? "visibility" : "visibility_off"}</span>
                       </button>

@@ -1,4 +1,5 @@
 import logging
+import os
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional
 
@@ -64,7 +65,7 @@ async def lifespan(app: FastAPI):
     logger.info("Initializing backend services on startup...")
     try:
         # Load, clean, feature-engineer, and fingerprint Bangalore dataset
-        _, fingerprints = load_and_prepare_dataset("backend/citylearn_cleaned_data.csv")
+        _, fingerprints = load_and_prepare_dataset("citylearn_cleaned_data.csv")
         
         # Build Similarity Index
         sim_svc = get_similarity_service()

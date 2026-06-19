@@ -24,7 +24,7 @@ MODEL_FEATURES = [
 ]
 
 class PredictionService:
-    def __init__(self, dataset_path: str = "backend/citylearn_cleaned_data.csv"):
+    def __init__(self, dataset_path: str = "citylearn_cleaned_data.csv"):
         self.dataset_path = dataset_path
         self.closure_model: Optional[Pipeline] = None
         self.priority_model: Optional[Pipeline] = None

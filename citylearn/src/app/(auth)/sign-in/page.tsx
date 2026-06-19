@@ -3,9 +3,17 @@
 
 import React, { useEffect } from "react";
 import { CrowdCanvas } from "@/components/shared/CrowdCanvas";
+import { AuthToast } from "@/components/shared/AuthToast";
 
 export default function Page() {
   const [showPassword, setShowPassword] = React.useState(false);
+  const [toastMessage, setToastMessage] = React.useState<string | null>(null);
+  const [toastType, setToastType] = React.useState<"error" | "success">("error");
+
+  const showToast = (message: string, type: "error" | "success" = "error") => {
+    setToastType(type);
+    setToastMessage(message);
+  };
 
   useEffect(() => {
     const runScript = () => {
@@ -14,20 +22,50 @@ export default function Page() {
         // Form Submission Interaction
         const loginForm = document.getElementById('login-form');
         if (loginForm) {
-          loginForm.addEventListener('submit', (e) => {
+          loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = loginForm.querySelector('button[type="submit"]');
-            if (btn) {
-              const originalContent = btn.innerHTML;
-              btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm mr-1">refresh</span> Validating...';
-              btn.disabled = true;
-              btn.style.opacity = '0.7';
+            const emailInput = document.getElementById('email') as HTMLInputElement | null;
+            const passwordInput = document.getElementById('password') as HTMLInputElement | null;
 
-              setTimeout(() => {
-                btn.innerHTML = '<span class="material-symbols-outlined text-sm mr-1">check_circle</span> Authenticated';
-                btn.className = "w-full bg-green-600 text-white font-body-md font-bold py-4 rounded-lg flex items-center justify-center gap-2 shadow-lg";
-                setTimeout(() => { window.location.href = '/dashboard'; }, 800);
-              }, 1500);
+            if (!btn || !emailInput || !passwordInput) return;
+
+            const originalContent = btn.innerHTML;
+            const originalClassName = btn.className;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm mr-1">refresh</span> Validating...';
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+
+            try {
+              const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email: emailInput.value,
+                  password: passwordInput.value,
+                }),
+              });
+
+              const data = await response.json();
+
+              if (!response.ok || !data.success) {
+                showToast(data.message || 'Login failed. Please try again.');
+                btn.innerHTML = originalContent;
+                btn.className = originalClassName;
+                btn.disabled = false;
+                btn.style.opacity = '';
+                return;
+              }
+
+              btn.innerHTML = '<span class="material-symbols-outlined text-sm mr-1">check_circle</span> Authenticated';
+              btn.className = "w-full bg-green-600 text-white font-body-md font-bold py-4 rounded-lg flex items-center justify-center gap-2 shadow-lg";
+              setTimeout(() => { window.location.href = '/dashboard'; }, 800);
+            } catch {
+              showToast('Unable to connect. Please try again.');
+              btn.innerHTML = originalContent;
+              btn.className = originalClassName;
+              btn.disabled = false;
+              btn.style.opacity = '';
             }
           });
         }
@@ -52,6 +90,13 @@ export default function Page() {
 
   return (
     <>
+      {toastMessage && (
+        <AuthToast
+          message={toastMessage}
+          type={toastType}
+          onClose={() => setToastMessage(null)}
+        />
+      )}
       <style dangerouslySetInnerHTML={{ __html: `.material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
