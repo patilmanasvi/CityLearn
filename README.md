@@ -6,7 +6,7 @@ AI-Powered Traffic Institutional Memory System for Event-Driven Congestion Manag
 
 ---
 
-## 🏆 Problem Statement
+##  Problem Statement
 
 Urban traffic authorities face recurring congestion caused by:
 
@@ -32,7 +32,7 @@ As a result, cities repeatedly solve the same traffic problems without learning 
 
 ---
 
-# 💡 Our Solution
+#  Our Solution
 
 CityLearn is a self-learning traffic intelligence platform that transforms historical traffic incidents into operational knowledge.
 
@@ -42,7 +42,7 @@ The platform acts as an institutional memory system for traffic authorities.
 
 ---
 
-# 🔄 Core Workflow
+#  Core Workflow
 
 New Event
 
@@ -76,7 +76,7 @@ Learn & Improve
 
 ---
 
-# 🧠 EventDNA Engine
+#  CityLearn Engine
 
 At the heart of CityLearn is EventDNA.
 
@@ -106,7 +106,7 @@ This fingerprint is transformed into vector embeddings using Sentence Transforme
 
 ---
 
-# 🔍 Similar Event Retrieval
+#  Similar Event Retrieval
 
 When a new event occurs, CityLearn searches historical records and retrieves the most similar incidents.
 
@@ -123,7 +123,7 @@ This enables traffic operators to leverage past operational knowledge instantly.
 
 ---
 
-# 📈 Impact Prediction Engine
+#  Impact Prediction Engine
 
 CityLearn predicts operational impact before traffic conditions worsen.
 
@@ -151,7 +151,7 @@ Features Used:
 
 ---
 
-# 🚔 Recommendation Engine
+#  Recommendation Engine
 
 Using historical similarity and prediction outputs, CityLearn recommends:
 
@@ -180,7 +180,7 @@ Examples:
 
 ---
 
-# 🗺️ Traffic Intelligence Dashboard
+#  Traffic Intelligence Dashboard
 
 Interactive Dashboard Features:
 
@@ -212,7 +212,7 @@ Event → Cause → Congestion → Response → Outcome
 
 ---
 
-# 🔗 Knowledge Graph
+#  Knowledge Graph
 
 CityLearn builds connections between:
 
@@ -245,7 +245,7 @@ Reduced Resolution Time
 
 ---
 
-# 📚 Learning Loop
+#  Learning Loop
 
 Unlike traditional traffic systems, CityLearn continuously learns.
 
@@ -273,7 +273,7 @@ This creates a self-improving traffic intelligence platform.
 
 ---
 
-# 🏗️ Tech Stack
+#  Tech Stack
 
 ## AI & Machine Learning
 
@@ -306,7 +306,7 @@ This creates a self-improving traffic intelligence platform.
 
 ---
 
-# 📂 Project Structure
+#  Project Structure
 
 backend/
 
@@ -350,7 +350,7 @@ data/
 
 ---
 
-# 📊 Sample Recommendation Output
+#  Sample Recommendation Output
 
 ```json
 {
@@ -366,7 +366,7 @@ data/
 
 ---
 
-# 🎯 Impact
+#  Impact
 
 CityLearn helps traffic authorities:
 
@@ -384,7 +384,7 @@ CityLearn helps traffic authorities:
 
 ---
 
-# 🚀 Future Enhancements
+#  Future Enhancements
 
 * Real-Time Traffic Feed Integration
 * Dynamic Diversion Planning
