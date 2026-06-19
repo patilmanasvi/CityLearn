@@ -59,6 +59,9 @@ export default function Page() {
 
               btn.innerHTML = '<span class="material-symbols-outlined text-sm mr-1">check_circle</span> Authenticated';
               btn.className = "w-full bg-green-600 text-white font-body-md font-bold py-4 rounded-lg flex items-center justify-center gap-2 shadow-lg";
+              if (data.user) {
+                localStorage.setItem("user", JSON.stringify(data.user));
+              }
               setTimeout(() => { window.location.href = '/dashboard'; }, 800);
             } catch {
               showToast('Unable to connect. Please try again.');

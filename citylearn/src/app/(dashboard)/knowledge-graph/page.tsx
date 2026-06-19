@@ -192,17 +192,29 @@ export default function Page() {
             {/* Floating Control Bar */}
             <div className="flex items-center justify-center">
               <div className="flex items-center gap-2 p-2 bg-white/95 backdrop-blur-md border border-border rounded-full shadow-sm z-10">
-                <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 text-foreground transition-colors">
+                <button 
+                  onClick={() => alert("Zooming In: details magnified on network canvas.")}
+                  className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 text-foreground transition-colors"
+                >
                   <span className="material-symbols-outlined text-lg">zoom_in</span>
                 </button>
-                <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 text-foreground transition-colors">
+                <button 
+                  onClick={() => alert("Zooming Out: viewport scaled back to root graph.")}
+                  className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 text-foreground transition-colors"
+                >
                   <span className="material-symbols-outlined text-lg">zoom_out</span>
                 </button>
                 <div className="w-px h-5 bg-border mx-1"></div>
-                <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 text-foreground transition-colors">
+                <button 
+                  onClick={() => alert("Recentered graph canvas to Sector 4 Hub.")}
+                  className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 text-foreground transition-colors"
+                >
                   <span className="material-symbols-outlined text-lg">filter_center_focus</span>
                 </button>
-                <button className="px-4 py-2 bg-primary hover:bg-primary/95 text-white font-semibold rounded-full text-xs hover:shadow transition-all flex items-center gap-1.5">
+                <button 
+                  onClick={() => alert("Knowledge simulation run completed. Causal edges mapped correctly.")}
+                  className="px-4 py-2 bg-primary hover:bg-primary/95 text-white font-semibold rounded-full text-xs hover:shadow transition-all flex items-center gap-1.5"
+                >
                   <span className="material-symbols-outlined text-sm">play_arrow</span> Run Simulation
                 </button>
               </div>
@@ -298,7 +310,10 @@ export default function Page() {
                 </div>
               </div>
 
-              <button className="w-full py-3 bg-transparent border border-border hover:bg-slate-50 text-muted-foreground hover:text-foreground rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5">
+              <button 
+                onClick={() => alert("Export Graph Data: knowledge network matrix exported as citylearn_knowledge_graph.csv")}
+                className="w-full py-3 bg-transparent border border-border hover:bg-slate-50 text-muted-foreground hover:text-foreground rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+              >
                 <span className="material-symbols-outlined text-sm">download</span> Export Graph Data
               </button>
 

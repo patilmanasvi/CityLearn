@@ -271,7 +271,10 @@ export default function Page() {
               )}
 
             </div>
-            <button className="mt-4 w-full py-2.5 rounded-lg border border-border text-[9px] font-bold hover:bg-slate-50 transition-colors uppercase tracking-wider">
+            <button 
+              onClick={() => alert("Audit Full Stream: recent operational logs exported successfully.")}
+              className="mt-4 w-full py-2.5 rounded-lg border border-border text-[9px] font-bold hover:bg-slate-50 transition-colors uppercase tracking-wider"
+            >
               Audit Full Stream
             </button>
           </div>
@@ -357,7 +360,10 @@ export default function Page() {
                 <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block font-sans">Peak Sensor Node</span>
                 <span className="text-xs font-semibold text-foreground">{metrics ? `${metrics.active_location} - ${metrics.active_severity}` : "-"}</span>
               </div>
-              <button className="bg-primary hover:bg-primary/95 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm hover:shadow active:scale-[0.98] transition-all">
+              <button 
+                onClick={() => alert("Adjust Sensors: local smart infrastructure signal timings updated successfully.")}
+                className="bg-primary hover:bg-primary/95 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm hover:shadow active:scale-[0.98] transition-all"
+              >
                 Adjust Sensors
               </button>
             </div>

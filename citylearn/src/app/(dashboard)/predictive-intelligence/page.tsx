@@ -316,7 +316,10 @@ export default function Page() {
       </div>
 
       {/* Floating Action Button */}
-      <button className="fixed bottom-8 right-8 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-30 group">
+      <button 
+        onClick={() => alert("Ask CityLearn AI: Assistant agent initialized. Type your query in the terminal.")}
+        className="fixed bottom-8 right-8 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-30 group"
+      >
         <span className="material-symbols-outlined text-2xl" style={{"fontVariationSettings": "'FILL' 1"}}>psychology</span>
         <div className="absolute right-16 bg-white px-4 py-2 rounded-lg border border-border shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
           <p className="text-xs font-bold text-foreground">Ask CityLearn AI</p>

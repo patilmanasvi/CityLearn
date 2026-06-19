@@ -56,12 +56,15 @@ export default function Page() {
           button.addEventListener("mouseup", () => {
             button.classList.remove("scale-95");
           });
-        });
-      } catch (e) {
-        console.error("Error running page script:", e);
+        }
       }
-    };
-    runScript();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    loadUser();
   }, []);
 
   const getInitials = (name?: string) => {
@@ -139,6 +142,10 @@ export default function Page() {
           font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
           vertical-align: middle;
         }
+        input:focus, select:focus {
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+        }
       ` }} />
 
       <div className="max-w-7xl mx-auto space-y-6">
@@ -192,9 +199,84 @@ export default function Page() {
                     <span className="material-symbols-outlined text-sm">mail</span> {user?.email || (loading ? "Loading..." : "No Email")}
                   </span>
                 </div>
-              </div>
 
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">State / Province</label>
+                    <input 
+                      type="text" 
+                      value={editState}
+                      onChange={(e) => setEditState(e.target.value)}
+                      className="w-full bg-slate-50 border border-border rounded-lg px-3 py-2 text-sm font-sans text-foreground focus:bg-white"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">Country</label>
+                    <input 
+                      type="text" 
+                      value={editCountry}
+                      onChange={(e) => setEditCountry(e.target.value)}
+                      className="w-full bg-slate-50 border border-border rounded-lg px-3 py-2 text-sm font-sans text-foreground focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-slate-100">
+                  <button 
+                    type="submit" 
+                    disabled={isSaving}
+                    className="px-4 py-2 bg-primary text-primary-foreground font-bold text-xs rounded-lg hover:brightness-105 active:scale-95 transition-all disabled:opacity-75"
+                  >
+                    {isSaving ? "SAVING..." : "Save Changes"}
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setIsEditing(false)}
+                    className="px-4 py-2 bg-white border border-border text-foreground font-bold text-xs rounded-lg hover:bg-slate-50 active:scale-95 transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              // Display View Mode
+              <div className="flex flex-col md:flex-row items-center md:items-center gap-6 relative z-10 w-full">
+                
+                {/* Profile Image */}
+                <div className="relative">
+                  <div className="w-32 h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-border shadow-sm bg-slate-50">
+                    <img
+                      alt="User avatar image"
+                      className="w-full h-full object-cover"
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400"
+                    />
+                  </div>
+                  <button 
+                    onClick={handleStartEdit}
+                    className="absolute -bottom-2 -right-2 w-9 h-9 bg-primary text-white rounded-lg shadow-sm flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                  </button>
+                </div>
+
+                {/* User Metadata */}
+                <div className="text-center md:text-left space-y-2 flex-grow">
+                  <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground leading-tight">{user.name}</h2>
+                  <p className="text-muted-foreground text-sm font-semibold">
+                    {user.role} • {user.department}
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-xs text-muted-foreground pt-2 border-t border-slate-100">
+                    <span className="flex items-center gap-1">
+                      <span className="material-symbols-outlined text-sm">location_on</span> {user.city}, {user.state}, {user.country}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="material-symbols-outlined text-sm">mail</span> {user.email}
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+            )}
           </div>
 
           {/* Quick Actions Panel (1 Column) */}

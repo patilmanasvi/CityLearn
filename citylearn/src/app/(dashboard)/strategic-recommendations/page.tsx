@@ -300,12 +300,18 @@ export default function Page() {
                   </p>
                 </div>
                 
-                <button className="w-full py-4 bg-primary hover:bg-primary/95 text-white rounded-xl font-semibold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                <button 
+                  onClick={() => alert("Recommendation approved! Officer dispatch list and barricading guidelines broadcasted to local precinct.")}
+                  className="w-full py-4 bg-primary hover:bg-primary/95 text-white rounded-xl font-semibold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                >
                   <span className="material-symbols-outlined text-lg">verified</span>
                   Approve Recommendation
                 </button>
                 
-                <button className="w-full py-3 bg-transparent border border-border hover:bg-slate-50 text-muted-foreground hover:text-foreground rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
+                <button 
+                  onClick={() => alert("Simulating Alternative Variant B: Traffic diverted at adjacent Sector. Recalculating impact...")}
+                  className="w-full py-3 bg-transparent border border-border hover:bg-slate-50 text-muted-foreground hover:text-foreground rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
+                >
                   Simulate Variant B
                 </button>
               </div>

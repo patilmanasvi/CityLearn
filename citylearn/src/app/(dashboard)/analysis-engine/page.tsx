@@ -251,6 +251,7 @@ export default function Page() {
         return res.json();
       });
 
+      const predictions = await response.json();
       const endTime = performance.now();
       const latencyMs = Math.round(endTime - startTime);
 

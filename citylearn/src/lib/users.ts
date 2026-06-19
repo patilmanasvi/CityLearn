@@ -110,3 +110,23 @@ export function toPublicUser(user: StoredUser) {
     createdAt: user.createdAt,
   };
 }
+
+export function updateUser(
+  id: string,
+  updates: Partial<Omit<StoredUser, "id" | "email" | "passwordHash" | "passwordSalt" | "createdAt">>
+): StoredUser | undefined {
+  const data = readUsersData();
+  const index = data.users.findIndex((u) => u.id === id);
+  if (index === -1) return undefined;
+
+  const user = data.users[index];
+  const updatedUser: StoredUser = {
+    ...user,
+    ...updates,
+  };
+
+  data.users[index] = updatedUser;
+  writeUsersData(data);
+  return updatedUser;
+}
+

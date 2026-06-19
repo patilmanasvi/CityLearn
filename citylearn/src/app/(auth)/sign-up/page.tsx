@@ -263,6 +263,9 @@ export default function Page() {
                     return;
                   }
                   alert("Account initialization sequence complete. Redirecting to Dashboard.");
+                  if (data.user) {
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                  }
                   window.location.href = "/dashboard";
                 })
                 .catch(() => {
