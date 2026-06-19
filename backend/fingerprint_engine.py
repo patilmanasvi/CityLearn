@@ -77,6 +77,109 @@ ALL_COLUMNS = [
 # Section 1 — Data Loading
 # ─────────────────────────────────────────────────────────────────────────────
 
+def restore_original_columns(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    
+    # 1. Generate sequential IDs if missing
+    if "id" not in df.columns:
+        df["id"] = range(1, len(df) + 1)
+        
+    # 2. Coordinates
+    if "endlatitude" not in df.columns:
+        df["endlatitude"] = df["latitude"]
+    if "endlongitude" not in df.columns:
+        df["endlongitude"] = df["longitude"]
+        
+    # 3. Addresses
+    if "address" not in df.columns:
+        df["address"] = df["corridor"].fillna("Unknown")
+    if "end_address" not in df.columns:
+        df["end_address"] = df["address"]
+        
+    # 4. Times
+    if "start_datetime" in df.columns:
+        start_dt = pd.to_datetime(df["start_datetime"], errors="coerce")
+    else:
+        start_dt = pd.Series([pd.Timestamp.now()] * len(df))
+        df["start_datetime"] = start_dt
+        
+    # We can compute synthetic end_datetime and resolved_datetime
+    if "end_datetime" not in df.columns:
+        dur_minutes = np.where(df["requires_road_closure"].fillna(False), 240, 120)
+        df["end_datetime"] = start_dt + pd.to_timedelta(dur_minutes, unit="m")
+        
+    if "resolved_datetime" not in df.columns:
+        # Resolves 30 mins before end_datetime
+        df["resolved_datetime"] = df["end_datetime"] - pd.to_timedelta(30, unit="m")
+        
+    if "closed_datetime" not in df.columns:
+        # Closes at end_datetime
+        df["closed_datetime"] = df["end_datetime"]
+        
+    if "modified_datetime" not in df.columns:
+        df["modified_datetime"] = start_dt
+        
+    if "created_date" not in df.columns:
+        df["created_date"] = start_dt
+        
+    # 5. Categoricals / string properties
+    if "direction" not in df.columns:
+        df["direction"] = "North"
+        
+    if "veh_type" not in df.columns:
+        df["veh_type"] = np.where(df["event_cause"].str.lower().str.contains("truck|bmtc", na=False), "HGV", "Car")
+        
+    if "veh_no" not in df.columns:
+        df["veh_no"] = "KA-01-XX-9999"
+        
+    if "cargo_material" not in df.columns:
+        df["cargo_material"] = "None"
+        
+    if "reason_breakdown" not in df.columns:
+        df["reason_breakdown"] = np.where(df["event_cause"].str.lower().str.contains("breakdown", na=False), "Engine Overheating", "None")
+        
+    if "age_of_truck" not in df.columns:
+        df["age_of_truck"] = 5.0
+        
+    if "status" not in df.columns:
+        df["status"] = "Resolved"
+        
+    if "description" not in df.columns:
+        df["description"] = "Traffic event of type " + df["event_type"].fillna("Unknown") + " caused by " + df["event_cause"].fillna("Unknown")
+        
+    if "comment" not in df.columns:
+        df["comment"] = "Traffic priority: " + df["priority"].fillna("Low").astype(str)
+        
+    # 6. Location specific
+    if "resolved_at_address" not in df.columns:
+        df["resolved_at_address"] = df["address"]
+    if "resolved_at_latitude" not in df.columns:
+        df["resolved_at_latitude"] = df["latitude"]
+    if "resolved_at_longitude" not in df.columns:
+        df["resolved_at_longitude"] = df["longitude"]
+        
+    # 7. IDs
+    for col in ["client_id", "created_by_id", "last_modified_by_id", "assigned_to_police_id", 
+                "citizen_accident_id", "closed_by_id", "resolved_by_id"]:
+        if col not in df.columns:
+            df[col] = 1000 + df["id"]
+            
+    # 8. Extra metadata
+    if "meta_data" not in df.columns:
+        df["meta_data"] = "{}"
+    if "kgid" not in df.columns:
+        df["kgid"] = "KG-" + df["id"].astype(str)
+    if "gba_identifier" not in df.columns:
+        df["gba_identifier"] = "GBA-" + df["id"].astype(str)
+    if "map_file" not in df.columns:
+        df["map_file"] = "map_" + df["id"].astype(str) + ".png"
+    if "route_path" not in df.columns:
+        df["route_path"] = "[]"
+    if "authenticated" not in df.columns:
+        df["authenticated"] = True
+
+    return df
+
 def load_dataset(filepath: str) -> pd.DataFrame:
     """
     Load the raw traffic event CSV (or JSON) from disk.
@@ -102,6 +205,7 @@ def load_dataset(filepath: str) -> pd.DataFrame:
     else:
         raise ValueError(f"Unsupported file format: {ext}")
 
+    df = restore_original_columns(df)
     logger.info("Loaded %d rows × %d columns", len(df), len(df.columns))
     return df
 

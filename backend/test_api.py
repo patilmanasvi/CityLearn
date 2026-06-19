@@ -16,7 +16,7 @@ def run_tests():
         try:
             res = requests.get(base_url, timeout=2)
             if res.status_code == 200:
-                print("Server is up and running! ✓")
+                print("Server is up and running! [OK]")
                 break
         except requests.exceptions.ConnectionError:
             time.sleep(1)
@@ -100,9 +100,9 @@ def run_tests():
 
     print("\n" + "="*40)
     if errors == 0:
-        print("🎉 ALL API TESTS PASSED SUCCESSFULLY! 🎉")
+        print("=== ALL API TESTS PASSED SUCCESSFULLY! ===")
     else:
-        print(f"❌ Completed with {errors} errors. ❌")
+        print(f"=== Completed with {errors} errors. ===")
         sys.exit(1)
 
 if __name__ == "__main__":

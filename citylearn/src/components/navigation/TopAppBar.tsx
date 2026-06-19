@@ -14,23 +14,17 @@ export default function TopAppBar() {
   const [time, setTime] = useState("");
   const [date, setDate] = useState("");
   const pathname = usePathname();
-  const [user, setUser] = useState({ name: "Alex Rivera", city: "San Francisco" });
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("user");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && parsed.name) {
-          setUser({
-            name: parsed.name,
-            city: parsed.city || "San Francisco"
-          });
+    fetch("/api/auth/profile")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setUser(data.user);
         }
-      }
-    } catch (e) {
-      console.error(e);
-    }
+      })
+      .catch((err) => console.error("Error fetching user in TopAppBar:", err));
   }, []);
 
   useEffect(() => {
@@ -58,15 +52,6 @@ export default function TopAppBar() {
           >
             <Menu className="w-6 h-6" />
           </button>
-
-          <div className="relative max-w-md w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input 
-              type="text" 
-              placeholder="Search urban nodes..." 
-              className="w-full bg-muted/40 border border-border rounded-full py-1.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all text-foreground placeholder:text-muted-foreground"
-            />
-          </div>
         </div>
 
         {/* Header Actions */}
@@ -161,8 +146,8 @@ export default function TopAppBar() {
               <UserCircle className="text-primary w-6 h-6" />
             </div>
             <div className="flex-1 overflow-hidden">
-              <p className="text-xs font-bold text-foreground truncate">{user.name}</p>
-              <p className="text-[10px] text-muted-foreground truncate uppercase font-semibold">{user.city}</p>
+              <p className="text-xs font-bold text-foreground truncate">{user?.name || "Guest"}</p>
+              <p className="text-[10px] text-muted-foreground truncate uppercase font-semibold">{user?.city || "Location"}</p>
             </div>
           </Link>
         </div>
