@@ -28,6 +28,24 @@ export const navItems = [
 
 export default function SideNavBar() {
   const pathname = usePathname();
+  const [user, setUser] = React.useState({ name: "Alex Rivera", city: "San Francisco" });
+
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.name) {
+          setUser({
+            name: parsed.name,
+            city: parsed.city || "San Francisco"
+          });
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   return (
     <aside className="w-64 border-r border-border bg-white flex flex-col h-screen sticky top-0 hidden lg:flex z-30">
@@ -71,8 +89,8 @@ export default function SideNavBar() {
             <UserCircle className="text-primary w-6 h-6" />
           </div>
           <div className="flex-1 overflow-hidden">
-            <p className="text-xs font-bold text-foreground truncate">Alex Rivera</p>
-            <p className="text-[10px] text-muted-foreground truncate uppercase font-semibold">San Francisco</p>
+            <p className="text-xs font-bold text-foreground truncate">{user.name}</p>
+            <p className="text-[10px] text-muted-foreground truncate uppercase font-semibold">{user.city}</p>
           </div>
         </Link>
       </div>

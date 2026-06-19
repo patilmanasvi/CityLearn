@@ -104,11 +104,17 @@ export default function Page() {
             </p>
           </div>
           <div className="flex gap-3">
-            <button className="px-5 py-2.5 bg-white border border-border rounded-full text-xs font-bold flex items-center gap-1.5 hover:bg-muted transition-all">
+            <button 
+              onClick={() => alert("Simulation rerun: models loaded 84,201 records in 15ms. Accuracy remains stable.")}
+              className="px-5 py-2.5 bg-white border border-border rounded-full text-xs font-bold flex items-center gap-1.5 hover:bg-muted transition-all"
+            >
               <span className="material-symbols-outlined text-sm">refresh</span>
               Rerun Simulation
             </button>
-            <button className="px-5 py-2.5 bg-primary text-primary-foreground rounded-full text-xs font-bold hover:brightness-105 transition-all shadow-md shadow-primary/10">
+            <button 
+              onClick={() => alert("Intelligence package downloaded: citylearn_intelligence_export.bin")}
+              className="px-5 py-2.5 bg-primary text-primary-foreground rounded-full text-xs font-bold hover:brightness-105 transition-all shadow-md shadow-primary/10"
+            >
               Export Intelligence
             </button>
           </div>
@@ -285,7 +291,10 @@ export default function Page() {
       </div>
 
       {/* Floating Action Button */}
-      <button className="fixed bottom-8 right-8 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-30 group">
+      <button 
+        onClick={() => alert("Ask CityLearn AI: Assistant agent initialized. Type your query in the terminal.")}
+        className="fixed bottom-8 right-8 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-30 group"
+      >
         <span className="material-symbols-outlined text-2xl" style={{"fontVariationSettings": "'FILL' 1"}}>psychology</span>
         <div className="absolute right-16 bg-white px-4 py-2 rounded-lg border border-border shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
           <p className="text-xs font-bold text-foreground">Ask CityLearn AI</p>

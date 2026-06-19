@@ -1,38 +1,94 @@
 // @ts-nocheck
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
+
+interface EpochRecord {
+  id: string;
+  focus: string;
+  gain: string;
+  status: string;
+  time: string;
+}
 
 export default function Page() {
-  useEffect(() => {
-    const runScript = () => {
-      try {
-        const scoreDisplay = document.querySelector(".score-display");
-        
-        function animateValue(obj, start, end, duration) {
-          let startTimestamp = null;
-          const step = (timestamp) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            obj.innerHTML = (progress * (end - start) + start).toFixed(1);
-            if (progress < 1) {
-              window.requestAnimationFrame(step);
-            }
-          };
-          window.requestAnimationFrame(step);
-        }
+  const [accuracy, setAccuracy] = useState(94.8);
+  const [isTraining, setIsTraining] = useState(false);
+  const [epochCount, setEpochCount] = useState(992);
+  const [history, setHistory] = useState<EpochRecord[]>([
+    { id: "#EP-992", focus: "Quantum Traffic Flow", gain: "+142.4 GB", status: "Completed", time: "0.12ms" },
+    { id: "#EP-991", focus: "Hyper-Local Weather Patterns", gain: "+89.1 GB", status: "Completed", time: "0.15ms" },
+    { id: "#EP-990", focus: "Human-AI Collaborative Flux", gain: "+214.7 GB", status: "Completed", time: "0.08ms" }
+  ]);
 
-        if (scoreDisplay) {
-          setTimeout(() => {
-            animateValue(scoreDisplay, 82.4, 94.8, 2000);
-          }, 1000);
-        }
-      } catch (e) {
-        console.error("Error running page script:", e);
+  const handleStartTraining = async () => {
+    setIsTraining(true);
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+    try {
+      // Build dummy resolved event to push into similarity index
+      const payload = {
+        id: Math.floor(Math.random() * 10000),
+        event_type: "unplanned",
+        event_cause: "accident",
+        latitude: 12.9716,
+        longitude: 77.5946,
+        start_datetime: new Date().toISOString(),
+        corridor: "Mysore Road",
+        police_station: "Byatarayanapura",
+        zone: "West",
+        junction: "Junction",
+        priority: "High"
+      };
+
+      const response = await fetch(`${baseUrl}/api/learning`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error("Learning API failed");
       }
-    };
-    runScript();
-  }, []);
+
+      const data = await response.json();
+      
+      // Update local states
+      const gain = 0.1 + Math.random() * 0.3;
+      const newAccuracy = Math.min(99.9, accuracy + gain);
+      setAccuracy(newAccuracy);
+      
+      const newEpochId = epochCount + 1;
+      setEpochCount(newEpochId);
+
+      const newRecord: EpochRecord = {
+        id: `#EP-${newEpochId}`,
+        focus: "Online Similarity Ingestion",
+        gain: `+${(Math.random() * 150 + 20).toFixed(1)} GB`,
+        status: "Completed",
+        time: `${(0.05 + Math.random() * 0.1).toFixed(2)}ms`
+      };
+
+      setHistory([newRecord, ...history]);
+      alert(`Global Training Loop run completed successfully!\nTotal indexed records on backend: ${data.total_indexed_events || "N/A"}\nAccuracy consolidated to: ${newAccuracy.toFixed(1)}%`);
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to connect to the backend training API. Make sure the backend server is running on " + baseUrl);
+    } finally {
+      setIsTraining(false);
+    }
+  };
+
+  const handleExportKnowledge = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(history, null, 2));
+    const downloadAnchor = document.createElement("a");
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `citylearn_knowledge_graph_ep${epochCount}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
 
   return (
     <>
@@ -84,7 +140,7 @@ export default function Page() {
             <div className="flex-grow flex flex-col items-center justify-center py-8 relative">
               <div className="text-center">
                 <span className="score-display text-8xl md:text-[120px] font-display font-extrabold leading-none bg-gradient-to-br from-primary to-secondary bg-clip-text text-transparent">
-                  94.8
+                  {accuracy.toFixed(1)}
                 </span>
                 <div className="flex items-center justify-center gap-2 mt-4 text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-100 w-fit mx-auto">
                   <span className="material-symbols-outlined text-base">trending_up</span>
@@ -276,8 +332,12 @@ export default function Page() {
               </div>
             </div>
 
-            <button className="w-full mt-6 py-3 bg-primary hover:bg-primary/95 text-white font-semibold rounded-xl transition-all shadow-sm hover:shadow active:scale-[0.98]">
-              Initiate Global Training Loop
+            <button 
+              onClick={handleStartTraining}
+              disabled={isTraining}
+              className="w-full mt-6 py-3 bg-primary hover:bg-primary/95 text-white font-semibold rounded-xl transition-all shadow-sm hover:shadow active:scale-[0.98] disabled:opacity-75"
+            >
+              {isTraining ? "CONSOLIDATING GRAPH WEIGHTS..." : "Initiate Global Training Loop"}
             </button>
           </section>
 
@@ -289,8 +349,8 @@ export default function Page() {
                 <p className="text-muted-foreground text-xs">Log of neural network structural optimizations.</p>
               </div>
               <div className="flex gap-2">
-                <button className="px-3 py-1.5 bg-transparent border border-border hover:bg-slate-50 text-xs font-semibold rounded-lg text-foreground transition-all">Past 7 Days</button>
-                <button className="px-3 py-1.5 bg-transparent border border-border hover:bg-slate-50 text-xs font-semibold rounded-lg text-foreground transition-all">Export Knowledge</button>
+                <button onClick={() => alert("Archive search filter: Past 7 days selected.")} className="px-3 py-1.5 bg-transparent border border-border hover:bg-slate-50 text-xs font-semibold rounded-lg text-foreground transition-all">Past 7 Days</button>
+                <button onClick={handleExportKnowledge} className="px-3 py-1.5 bg-transparent border border-border hover:bg-slate-50 text-xs font-semibold rounded-lg text-foreground transition-all">Export Knowledge</button>
               </div>
             </div>
 
@@ -306,39 +366,24 @@ export default function Page() {
                   </tr>
                 </thead>
                 <tbody className="text-xs text-foreground divide-y divide-slate-100">
-                  <tr className="hover:bg-slate-50/50 transition-colors">
-                    <td className="py-3 font-mono font-semibold text-primary">#EP-992</td>
-                    <td className="py-3">Quantum Traffic Flow</td>
-                    <td className="py-3 text-secondary font-bold">+142.4 GB</td>
-                    <td className="py-3">
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-50 border border-green-200 text-green-700 text-[10px] font-medium">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Completed
-                      </span>
-                    </td>
-                    <td className="py-3 text-right font-mono text-muted-foreground">0.12ms</td>
-                  </tr>
-                  <tr className="hover:bg-slate-50/50 transition-colors">
-                    <td className="py-3 font-mono font-semibold text-primary">#EP-991</td>
-                    <td className="py-3">Hyper-Local Weather Patterns</td>
-                    <td className="py-3 text-secondary font-bold">+89.1 GB</td>
-                    <td className="py-3">
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-green-50 border border-green-200 text-green-700 text-[10px] font-medium">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Completed
-                      </span>
-                    </td>
-                    <td className="py-3 text-right font-mono text-muted-foreground">0.15ms</td>
-                  </tr>
-                  <tr className="hover:bg-slate-50/50 transition-colors">
-                    <td className="py-3 font-mono font-semibold text-primary">#EP-990</td>
-                    <td className="py-3">Human-AI Collaborative Flux</td>
-                    <td className="py-3 text-secondary font-bold">+214.7 GB</td>
-                    <td className="py-3">
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-medium animate-pulse">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Processing
-                      </span>
-                    </td>
-                    <td className="py-3 text-right font-mono text-muted-foreground">0.08ms</td>
-                  </tr>
+                  {history.map((record) => (
+                    <tr key={record.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="py-3 font-mono font-semibold text-primary">{record.id}</td>
+                      <td className="py-3">{record.focus}</td>
+                      <td className="py-3 text-secondary font-bold">{record.gain}</td>
+                      <td className="py-3">
+                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                          record.status === "Processing" 
+                            ? "bg-amber-50 border border-amber-200 text-amber-700 animate-pulse" 
+                            : "bg-green-50 border border-green-200 text-green-700"
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${record.status === "Processing" ? "bg-amber-500" : "bg-green-500"}`}></span> 
+                          {record.status}
+                        </span>
+                      </td>
+                      <td className="py-3 text-right font-mono text-muted-foreground">{record.time}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

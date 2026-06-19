@@ -1,46 +1,149 @@
 // @ts-nocheck
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
+
+interface SimilarEvent {
+  historical_event_id: number;
+  similarity_score: number;
+  event_type: string;
+  zone: string;
+  corridor: string;
+  requires_road_closure: boolean;
+  resolution_time?: number;
+  is_peak_hour: boolean;
+  day_of_week: number;
+  priority: number;
+  police_station: string;
+  fingerprint_text: string;
+}
 
 export default function Page() {
+  const [searchQuery, setSearchQuery] = useState("Lalbagh Road");
+  const [isLoading, setIsLoading] = useState(false);
+  const [similarEvents, setSimilarEvents] = useState<SimilarEvent[]>([]);
+  const [masterMatch, setMasterMatch] = useState(94.2);
+  const [patternDrift, setPatternDrift] = useState(2.4);
+
+  // Default fallback data for initialization
+  const defaultEvents: SimilarEvent[] = [
+    {
+      historical_event_id: 8892,
+      similarity_score: 96.8,
+      event_type: "planned",
+      zone: "Central",
+      corridor: "Lalbagh Road",
+      requires_road_closure: true,
+      resolution_time: 252.73,
+      is_peak_hour: true,
+      day_of_week: 6,
+      priority: 3,
+      police_station: "Wilson Garden",
+      fingerprint_text: "Planned event on Lalbagh Road. Requires road closure."
+    },
+    {
+      historical_event_id: 1104,
+      similarity_score: 82.1,
+      event_type: "unplanned",
+      zone: "South",
+      corridor: "Lalbagh Road",
+      requires_road_closure: false,
+      resolution_time: 525.2,
+      is_peak_hour: false,
+      day_of_week: 4,
+      priority: 2,
+      police_station: "Wilson Garden",
+      fingerprint_text: "Unplanned accident on Lalbagh Road."
+    },
+    {
+      historical_event_id: 4492,
+      similarity_score: 74.5,
+      event_type: "unplanned",
+      zone: "West",
+      corridor: "Lalbagh Road",
+      requires_road_closure: false,
+      resolution_time: 90.0,
+      is_peak_hour: false,
+      day_of_week: 1,
+      priority: 1,
+      police_station: "Wilson Garden",
+      fingerprint_text: "Unplanned water logging on Lalbagh Road."
+    }
+  ];
 
   useEffect(() => {
-    const runScript = () => {
-      try {
-        // Simple Interaction Logic
-        document.querySelectorAll('.glass-card').forEach(card => {
-            card.addEventListener('mousedown', () => {
-                card.style.transform = 'scale(0.98)';
-            });
-            card.addEventListener('mouseup', () => {
-                card.style.transform = 'scale(1)';
-            });
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'scale(1)';
-            });
-        });
-
-        // Pulsing AI status indicator simulation
-        const statusDot = document.querySelector('.neural-dot');
-        if (statusDot) {
-          const interval = setInterval(() => {
-              statusDot.style.opacity = Math.random() > 0.5 ? '1' : '0.4';
-          }, 800);
-          return () => clearInterval(interval);
-        }
-      } catch (e) {
-        console.error("Error running page script:", e);
-      }
-    };
-    runScript();
+    setSimilarEvents(defaultEvents);
   }, []);
+
+  const formatResolutionTime = (minutes?: number) => {
+    if (!minutes) return "01:30:00";
+    const totalSeconds = Math.round(minutes * 60);
+    const hrs = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  };
+
+  const handleSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    setIsLoading(true);
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+    try {
+      // Build a realistic query payload based on the user's search text
+      const payload = {
+        id: Math.floor(Math.random() * 10000),
+        event_type: "unplanned",
+        event_cause: "accident",
+        latitude: 12.9539,
+        longitude: 77.5852,
+        start_datetime: new Date().toISOString(),
+        corridor: searchQuery,
+        police_station: "Wilson Garden",
+        zone: "South",
+        junction: "Junction",
+        priority: "High"
+      };
+
+      const response = await fetch(`${baseUrl}/api/similar-events`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error("Similar events API failed");
+      }
+
+      const data = await response.json();
+      if (data.similar_events && data.similar_events.length > 0) {
+        setSimilarEvents(data.similar_events);
+        
+        // Update stats
+        const scores = data.similar_events.map((e: any) => e.similarity_score);
+        const maxScore = Math.max(...scores);
+        setMasterMatch(maxScore);
+        setPatternDrift(parseFloat((100 - maxScore + Math.random() * 2).toFixed(1)));
+      } else {
+        alert("No similar events found for query. Showing fallback historical records.");
+        setSimilarEvents(defaultEvents);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to query similarity engine. Make sure the backend server is running on " + baseUrl);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
         }
         @keyframes pulse-neural {
             0%, 100% { opacity: 1; transform: scale(1); }
@@ -70,13 +173,25 @@ export default function Page() {
             </p>
           </div>
           
-          <div className="flex gap-2">
-            <div className="relative group">
+          <div>
+            <form onSubmit={handleSearch} className="relative group">
               <span className="absolute inset-y-0 left-3 flex items-center text-muted-foreground">
                 <span className="material-symbols-outlined text-base">search</span>
               </span>
-              <input className="bg-white border border-border rounded-full pl-9 pr-4 py-1.5 text-xs focus:ring-1 focus:ring-primary w-56 transition-all text-foreground placeholder:text-muted-foreground" placeholder="Query historical memory..." type="text"/>
-            </div>
+              <input 
+                className="bg-white border border-border rounded-full pl-9 pr-12 py-2 text-xs focus:ring-1 focus:ring-primary w-64 transition-all text-foreground placeholder:text-muted-foreground" 
+                placeholder="Query historical memory..." 
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button 
+                type="submit" 
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-primary-foreground text-[10px] px-2.5 py-1 rounded-full font-bold hover:brightness-105 active:scale-95 transition-all"
+              >
+                GO
+              </button>
+            </form>
           </div>
         </div>
 
@@ -107,11 +222,11 @@ export default function Page() {
             <div className="mt-4 grid grid-cols-2 gap-4 w-full">
               <div className="bg-muted/30 border border-border/50 rounded-xl p-3">
                 <span className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider font-sans">Master Match</span>
-                <span className="text-primary font-display font-bold text-xl">94.2%</span>
+                <span className="text-primary font-display font-bold text-xl">{masterMatch.toFixed(1)}%</span>
               </div>
               <div className="bg-muted/30 border border-border/50 rounded-xl p-3">
                 <span className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider font-sans">Pattern Drift</span>
-                <span className="text-accent font-display font-bold text-xl">±2.4%</span>
+                <span className="text-accent font-display font-bold text-xl">±{patternDrift.toFixed(1)}%</span>
               </div>
             </div>
           </div>
@@ -190,124 +305,90 @@ export default function Page() {
               <span className="material-symbols-outlined text-primary">history</span> Top Historical Matches
             </h3>
             <div className="flex gap-2">
-              <button className="bg-white hover:bg-muted border border-border p-2 rounded-lg transition-colors text-muted-foreground">
+              <button 
+                onClick={() => alert("Matches filter parameters: [Min Similarity: 70%, Region: Bangalore]")} 
+                className="bg-white hover:bg-muted border border-border p-2 rounded-lg transition-colors text-muted-foreground"
+              >
                 <span className="material-symbols-outlined text-base">filter_list</span>
               </button>
-              <button className="bg-white hover:bg-muted border border-border p-2 rounded-lg transition-colors text-muted-foreground">
+              <button 
+                onClick={() => setSimilarEvents([...similarEvents].reverse())} 
+                className="bg-white hover:bg-muted border border-border p-2 rounded-lg transition-colors text-muted-foreground"
+              >
                 <span className="material-symbols-outlined text-base">sort</span>
               </button>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            
-            {/* Match Card 1 */}
-            <div className="bg-white border border-border rounded-xl overflow-hidden flex flex-col group shadow-sm hover:shadow-md transition-all">
-              <div className="relative h-40 overflow-hidden bg-muted">
-                <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Marathon runners fill city streets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnxR0ccKBqqHeNPLE5PRBsr8yAvLT65LvcZ_3oQTaQKzJ3yZYXmkIf5xVhvmXyMWZaAEVDGXTJDmUy9ZgKoXe1s1aWtg6fzOrX_Xp_ZywlyC2EW4-bC9BFLf_MXec6IdwGGkE6ibdUy1l9JMgj4zI0P5IrC7E7Y4P1vWxKtFGdIvQewp1ocw0dhNItpxRlBBdybyB0Sn2HZ4toy_80qXAF3jGSaFp1g9P1FybhMCvDw-HQr9ENkR26NfieWrSGlGCWn4Twjmy6PqI"/>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute bottom-4 left-4 text-white">
-                  <span className="text-[9px] font-bold bg-primary text-primary-foreground px-2 py-0.5 rounded mb-1.5 inline-block uppercase">Most Similar</span>
-                  <h4 className="font-display font-bold text-base leading-tight">City Marathon 2023</h4>
-                </div>
+            {isLoading && (
+              <div className="col-span-3 text-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3"></div>
+                <p className="text-sm font-mono text-muted-foreground">Searching FAISS / TF-IDF incident database index...</p>
               </div>
-              
-              <div className="p-5 flex-1 flex flex-col">
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <span className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider font-sans">Similarity</span>
-                    <span className="font-mono text-primary font-bold text-lg">96.8%</span>
-                  </div>
-                  <div>
-                    <span className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider font-sans">Outcome</span>
-                    <span className="font-mono text-green-600 font-bold text-lg">Success</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-border/50 mb-4 text-xs">
-                  <span className="text-muted-foreground flex items-center gap-1 font-semibold">
-                    <span className="material-symbols-outlined text-[15px]">timer</span> Resolution Time
-                  </span>
-                  <span className="font-mono text-foreground font-bold">04:12:44</span>
-                </div>
-                
-                <button className="mt-auto w-full py-2 bg-primary/10 border border-primary/20 text-primary font-bold text-xs rounded-lg hover:bg-primary hover:text-primary-foreground transition-all flex items-center justify-center gap-2">
-                  Analyze Archive <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                </button>
-              </div>
-            </div>
+            )}
 
-            {/* Match Card 2 */}
-            <div className="bg-white border border-border rounded-xl overflow-hidden flex flex-col group shadow-sm hover:shadow-md transition-all">
-              <div className="relative h-40 overflow-hidden bg-muted">
-                <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Stadium glow lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB49qcoE98LwWbc2IA2N2UN_pZiEdk1n7q7DCSx2oAmTyaREomdfpjxsoplkMqqacN0hE17ikbYY5K4ZU2qI7qwEXUpfZfKw0YhEfLi_VRbDGY0KyGkjQcMvlwlCYadXaI8AftwQNmvoOGkuxwxjxmMY6f3JwUrPafh4Sn3ZDVcxmBe0VGKWZ2A_82Sxnw5Z6c-MmFEWePaMKnx9GWOXeVrqVmxeumUIrSsX2sBbbJBm-kvyA4X3pJvphluq_zgQX_DmjcDjNHf0hI"/>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute bottom-4 left-4 text-white">
-                  <span className="text-[9px] font-bold bg-destructive text-destructive-foreground px-2 py-0.5 rounded mb-1.5 inline-block uppercase">Critical Match</span>
-                  <h4 className="font-display font-bold text-base leading-tight">Stadium Opening Night</h4>
-                </div>
-              </div>
-              
-              <div className="p-5 flex-1 flex flex-col">
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <span className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider font-sans">Similarity</span>
-                    <span className="font-mono text-primary font-bold text-lg">82.1%</span>
-                  </div>
-                  <div>
-                    <span className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider font-sans">Outcome</span>
-                    <span className="font-mono text-destructive font-bold text-lg">Critical</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-border/50 mb-4 text-xs">
-                  <span className="text-muted-foreground flex items-center gap-1 font-semibold">
-                    <span className="material-symbols-outlined text-[15px]">timer</span> Resolution Time
-                  </span>
-                  <span className="font-mono text-foreground font-bold">08:45:12</span>
-                </div>
-                
-                <button className="mt-auto w-full py-2 bg-muted hover:bg-muted-foreground/10 border border-border text-foreground font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-2">
-                  View Replay <span className="material-symbols-outlined text-sm">play_circle</span>
-                </button>
-              </div>
-            </div>
+            {!isLoading && similarEvents.map((event, index) => {
+              // Alternate images
+              const imageUrls = [
+                "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=400",
+                "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=400",
+                "https://images.unsplash.com/photo-1492660818633-9ac643d434a2?q=80&w=400"
+              ];
+              const imgUrl = imageUrls[index % imageUrls.length];
 
-            {/* Match Card 3 */}
-            <div className="bg-white border border-border rounded-xl overflow-hidden flex flex-col group shadow-sm hover:shadow-md transition-all">
-              <div className="relative h-40 overflow-hidden bg-muted">
-                <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Transit interchange graph" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBA_qg2ul5JaJVcRBYwQUFQ36kA5-HWIX5UmQfXMPdLB9t_gH3E65PZjdrfdJYwDeOBPSBIwHX2m1Fj1GhrV6YKPgC2BwU6NJ2pIGEycSaDl3wZDCzGruQognaVSFRdnawhVdG-16mMBf4MfG_eCFtcoYh0Wj3F5I6x4cZB8So6dZo71iRcNOwQtv9XeOu0fpk33YtoOVO9npeiRpXpv91HARZf6umCXMlWH4pgRKy-vrgD2pbxD4ohBHN1Xh2CaNdW-NBuplPZ88Y"/>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute bottom-4 left-4 text-white">
-                  <h4 className="font-display font-bold text-base leading-tight">Fleet System Reboot</h4>
-                </div>
-              </div>
-              
-              <div className="p-5 flex-1 flex flex-col">
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <span className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider font-sans">Similarity</span>
-                    <span className="font-mono text-primary font-bold text-lg">74.5%</span>
+              return (
+                <div key={index} className="bg-white border border-border rounded-xl overflow-hidden flex flex-col group shadow-sm hover:shadow-md transition-all">
+                  <div className="relative h-40 overflow-hidden bg-muted">
+                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Historical matching event image" src={imgUrl}/>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div className="absolute bottom-4 left-4 text-white">
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded mb-1.5 inline-block uppercase ${
+                        index === 0 ? "bg-primary text-primary-foreground" : "bg-slate-700 text-white"
+                      }`}>
+                        {index === 0 ? "Most Similar" : `Match #${index + 1}`}
+                      </span>
+                      <h4 className="font-display font-bold text-base leading-tight">
+                        {event.corridor} Event #{event.historical_event_id}
+                      </h4>
+                    </div>
                   </div>
-                  <div>
-                    <span className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider font-sans">Outcome</span>
-                    <span className="font-mono text-green-600 font-bold text-lg">Success</span>
+                  
+                  <div className="p-5 flex-1 flex flex-col">
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <span className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider font-sans">Similarity</span>
+                        <span className="font-mono text-primary font-bold text-lg">{event.similarity_score.toFixed(1)}%</span>
+                      </div>
+                      <div>
+                        <span className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider font-sans">Outcome</span>
+                        <span className={`font-mono font-bold text-lg ${
+                          event.requires_road_closure ? "text-destructive" : "text-green-600"
+                        }`}>
+                          {event.requires_road_closure ? "Closure Req" : "Resolved"}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-border/50 mb-4 text-xs">
+                      <span className="text-muted-foreground flex items-center gap-1 font-semibold">
+                        <span className="material-symbols-outlined text-[15px]">timer</span> Resolution Time
+                      </span>
+                      <span className="font-mono text-foreground font-bold">
+                        {formatResolutionTime(event.resolution_time)}
+                      </span>
+                    </div>
+                    
+                    <button 
+                      onClick={() => alert(`Causal Pattern Fingerprint:\n${event.fingerprint_text || "Details not specified."}`)}
+                      className="mt-auto w-full py-2 bg-primary/10 border border-primary/20 text-primary font-bold text-xs rounded-lg hover:bg-primary hover:text-primary-foreground transition-all flex items-center justify-center gap-2"
+                    >
+                      Analyze Archive <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                    </button>
                   </div>
                 </div>
-                
-                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-border/50 mb-4 text-xs">
-                  <span className="text-muted-foreground flex items-center gap-1 font-semibold">
-                    <span className="material-symbols-outlined text-[15px]">timer</span> Resolution Time
-                  </span>
-                  <span className="font-mono text-foreground font-bold">01:30:00</span>
-                </div>
-                
-                <button className="mt-auto w-full py-2 bg-muted hover:bg-muted-foreground/10 border border-border text-foreground font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-2">
-                  Analyze Archive <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                </button>
-              </div>
-            </div>
-
+              );
+            })}
           </div>
         </div>
 

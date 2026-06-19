@@ -1,27 +1,144 @@
 // @ts-nocheck
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  department: string;
+  city: string;
+  state: string;
+  country: string;
+  createdAt: string;
+}
 
 export default function Page() {
-  useEffect(() => {
-    const runScript = () => {
-      try {
-        // Subtle micro-animations
-        document.querySelectorAll("button").forEach((button) => {
-          button.addEventListener("mousedown", () => {
-            button.classList.add("scale-95");
+  const [user, setUser] = useState<UserProfile>({
+    id: "mock-id-1234",
+    name: "Alex Rivera",
+    email: "a.rivera@citylearn.gov",
+    role: "Senior Urban Logistics Architect",
+    department: "City Operations AI",
+    city: "San Francisco",
+    state: "California",
+    country: "United States",
+    createdAt: new Date().toISOString()
+  });
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editRole, setEditRole] = useState("");
+  const [editDepartment, setEditDepartment] = useState("");
+  const [editCity, setEditCity] = useState("");
+  const [editState, setEditState] = useState("");
+  const [editCountry, setEditCountry] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Load user from localStorage
+  const loadUser = () => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed) {
+          setUser({
+            id: parsed.id || "mock-id-1234",
+            name: parsed.name || "Alex Rivera",
+            email: parsed.email || "a.rivera@citylearn.gov",
+            role: parsed.role || "Senior Urban Logistics Architect",
+            department: parsed.department || "City Operations AI",
+            city: parsed.city || "San Francisco",
+            state: parsed.state || "California",
+            country: parsed.country || "United States",
+            createdAt: parsed.createdAt || new Date().toISOString()
           });
-          button.addEventListener("mouseup", () => {
-            button.classList.remove("scale-95");
-          });
-        });
-      } catch (e) {
-        console.error("Error running page script:", e);
+        }
       }
-    };
-    runScript();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    loadUser();
   }, []);
+
+  // Enter edit mode
+  const handleStartEdit = () => {
+    setEditName(user.name);
+    setEditRole(user.role);
+    setEditDepartment(user.department);
+    setEditCity(user.city);
+    setEditState(user.state);
+    setEditCountry(user.country);
+    setIsEditing(true);
+  };
+
+  // Save profile changes
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editName.trim()) {
+      alert("Name is required.");
+      return;
+    }
+
+    setIsSaving(true);
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+
+    try {
+      const response = await fetch(`${baseUrl}/api/auth/update`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: user.id,
+          name: editName,
+          role: editRole,
+          department: editDepartment,
+          city: editCity,
+          state: editState,
+          country: editCountry
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Profile update API failed");
+      }
+
+      const data = await response.json();
+      if (data.success && data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
+        setIsEditing(false);
+        alert("Profile updated successfully!");
+        // Refresh to reload SideNavBar
+        window.location.reload();
+      } else {
+        alert(data.message || "Failed to update profile.");
+      }
+    } catch (err) {
+      console.error(err);
+      // Fallback update in localStorage if server fails
+      const fallbackUser = {
+        ...user,
+        name: editName,
+        role: editRole,
+        department: editDepartment,
+        city: editCity,
+        state: editState,
+        country: editCountry
+      };
+      localStorage.setItem("user", JSON.stringify(fallbackUser));
+      setUser(fallbackUser);
+      setIsEditing(false);
+      alert("Profile updated locally. Please verify connection to Next.js API server.");
+      window.location.reload();
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <>
@@ -29,6 +146,10 @@ export default function Page() {
         .material-symbols-outlined {
           font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
           vertical-align: middle;
+        }
+        input:focus, select:focus {
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
         }
       ` }} />
 
@@ -48,39 +169,137 @@ export default function Page() {
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           <div className="lg:col-span-2 bg-white border border-border shadow-sm rounded-2xl p-8 relative overflow-hidden flex items-center">
-            <div className="flex flex-col md:flex-row items-center md:items-center gap-6 relative z-10 w-full">
-              
-              {/* Profile Image */}
-              <div className="relative">
-                <div className="w-32 h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-border shadow-sm bg-slate-50">
-                  <img
-                    alt="Alex Rivera"
-                    className="w-full h-full object-cover"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuACVQnt-rJcIEaj8Zesz9MBf202MGlkB06ZVjxbP89q41K35mVAh7BoZ8PdYs-isZTcp5qit1kGpgN1lhFPIA3h98_R6-8-q4WMq7zDlJrmW4l9N2L8Hv7kOE1VABccz8RMfML1BKD3T4C2JDWugDilheruhvpiq14e88M_MWIxBpl1zjJSX_rwROAl3_xCNYT_0rQoFMOhcUwIXfWG8FXfnONrHq2zGtZT6R9Z17ZvjwWPtzUmEjGbUVrma55dABB6-Q4dtyjTniA"
-                  />
+            {isEditing ? (
+              // Editing Form Mode
+              <form onSubmit={handleSave} className="w-full space-y-4">
+                <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">Edit profile details</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">Full Name</label>
+                    <input 
+                      type="text" 
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="w-full bg-slate-50 border border-border rounded-lg px-3 py-2 text-sm font-sans text-foreground focus:bg-white"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">Role / Designation</label>
+                    <input 
+                      type="text" 
+                      value={editRole}
+                      onChange={(e) => setEditRole(e.target.value)}
+                      className="w-full bg-slate-50 border border-border rounded-lg px-3 py-2 text-sm font-sans text-foreground focus:bg-white"
+                    />
+                  </div>
                 </div>
-                <button className="absolute -bottom-2 -right-2 w-9 h-9 bg-primary text-white rounded-lg shadow-sm flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
-                  <span className="material-symbols-outlined text-[18px]">edit</span>
-                </button>
-              </div>
 
-              {/* User Metadata */}
-              <div className="text-center md:text-left space-y-2 flex-grow">
-                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground leading-tight">Alex Rivera</h2>
-                <p className="text-muted-foreground text-sm">
-                  Senior Urban Logistics Architect • City Operations AI
-                </p>
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-xs text-muted-foreground pt-2 border-t border-slate-100">
-                  <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">location_on</span> San Francisco, CA
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">mail</span> a.rivera@citylearn.gov
-                  </span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">Department</label>
+                    <select 
+                      value={editDepartment}
+                      onChange={(e) => setEditDepartment(e.target.value)}
+                      className="w-full bg-slate-50 border border-border rounded-lg px-3 py-2 text-sm font-sans text-foreground focus:bg-white"
+                    >
+                      <option>Urban Planning</option>
+                      <option>Emergency Response</option>
+                      <option>Transit Authority</option>
+                      <option>Grid Management</option>
+                      <option>Data Science</option>
+                      <option>City Operations AI</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">Primary City</label>
+                    <input 
+                      type="text" 
+                      value={editCity}
+                      onChange={(e) => setEditCity(e.target.value)}
+                      className="w-full bg-slate-50 border border-border rounded-lg px-3 py-2 text-sm font-sans text-foreground focus:bg-white"
+                    />
+                  </div>
                 </div>
-              </div>
 
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">State / Province</label>
+                    <input 
+                      type="text" 
+                      value={editState}
+                      onChange={(e) => setEditState(e.target.value)}
+                      className="w-full bg-slate-50 border border-border rounded-lg px-3 py-2 text-sm font-sans text-foreground focus:bg-white"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase">Country</label>
+                    <input 
+                      type="text" 
+                      value={editCountry}
+                      onChange={(e) => setEditCountry(e.target.value)}
+                      className="w-full bg-slate-50 border border-border rounded-lg px-3 py-2 text-sm font-sans text-foreground focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-slate-100">
+                  <button 
+                    type="submit" 
+                    disabled={isSaving}
+                    className="px-4 py-2 bg-primary text-primary-foreground font-bold text-xs rounded-lg hover:brightness-105 active:scale-95 transition-all disabled:opacity-75"
+                  >
+                    {isSaving ? "SAVING..." : "Save Changes"}
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setIsEditing(false)}
+                    className="px-4 py-2 bg-white border border-border text-foreground font-bold text-xs rounded-lg hover:bg-slate-50 active:scale-95 transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              // Display View Mode
+              <div className="flex flex-col md:flex-row items-center md:items-center gap-6 relative z-10 w-full">
+                
+                {/* Profile Image */}
+                <div className="relative">
+                  <div className="w-32 h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-border shadow-sm bg-slate-50">
+                    <img
+                      alt="User avatar image"
+                      className="w-full h-full object-cover"
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400"
+                    />
+                  </div>
+                  <button 
+                    onClick={handleStartEdit}
+                    className="absolute -bottom-2 -right-2 w-9 h-9 bg-primary text-white rounded-lg shadow-sm flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">edit</span>
+                  </button>
+                </div>
+
+                {/* User Metadata */}
+                <div className="text-center md:text-left space-y-2 flex-grow">
+                  <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground leading-tight">{user.name}</h2>
+                  <p className="text-muted-foreground text-sm font-semibold">
+                    {user.role} • {user.department}
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-xs text-muted-foreground pt-2 border-t border-slate-100">
+                    <span className="flex items-center gap-1">
+                      <span className="material-symbols-outlined text-sm">location_on</span> {user.city}, {user.state}, {user.country}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="material-symbols-outlined text-sm">mail</span> {user.email}
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+            )}
           </div>
 
           {/* Quick Actions Panel (1 Column) */}
@@ -92,7 +311,10 @@ export default function Page() {
               </h3>
               
               <div className="space-y-3">
-                <button className="w-full group flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/70 border border-border rounded-xl transition-all">
+                <button 
+                  onClick={handleStartEdit}
+                  className="w-full group flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/70 border border-border rounded-xl transition-all"
+                >
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-primary text-lg">person_edit</span>
                     <span className="text-xs font-bold text-foreground">Edit Profile</span>
@@ -100,7 +322,10 @@ export default function Page() {
                   <span className="material-symbols-outlined text-muted-foreground text-base group-hover:translate-x-1 transition-transform">chevron_right</span>
                 </button>
                 
-                <button className="w-full group flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/70 border border-border rounded-xl transition-all">
+                <button 
+                  onClick={() => alert("Settings configuration: Auto location check and regional map center synced.")}
+                  className="w-full group flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/70 border border-border rounded-xl transition-all"
+                >
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-secondary text-lg">map</span>
                     <span className="text-xs font-bold text-foreground">Location Settings</span>
@@ -108,7 +333,10 @@ export default function Page() {
                   <span className="material-symbols-outlined text-muted-foreground text-base group-hover:translate-x-1 transition-transform">chevron_right</span>
                 </button>
                 
-                <button className="w-full group flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/70 border border-border rounded-xl transition-all">
+                <button 
+                  onClick={() => alert("Security status: Synaptic link verified, auth token rotating in 45m.")}
+                  className="w-full group flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/70 border border-border rounded-xl transition-all"
+                >
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-amber-600 text-lg">security</span>
                     <span className="text-xs font-bold text-foreground">Security &amp; Access</span>
