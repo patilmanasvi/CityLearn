@@ -28,6 +28,18 @@ export const navItems = [
 
 export default function SideNavBar() {
   const pathname = usePathname();
+  const [user, setUser] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    fetch("/api/auth/profile")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setUser(data.user);
+        }
+      })
+      .catch((err) => console.error("Error fetching user in SideNavBar:", err));
+  }, []);
 
   return (
     <aside className="w-64 border-r border-border bg-white flex flex-col h-screen sticky top-0 hidden lg:flex z-30">
@@ -71,8 +83,8 @@ export default function SideNavBar() {
             <UserCircle className="text-primary w-6 h-6" />
           </div>
           <div className="flex-1 overflow-hidden">
-            <p className="text-xs font-bold text-foreground truncate">Alex Rivera</p>
-            <p className="text-[10px] text-muted-foreground truncate uppercase font-semibold">San Francisco</p>
+            <p className="text-xs font-bold text-foreground truncate">{user?.name || "Guest"}</p>
+            <p className="text-[10px] text-muted-foreground truncate uppercase font-semibold">{user?.city || "Location"}</p>
           </div>
         </Link>
       </div>

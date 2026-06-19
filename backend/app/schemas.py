@@ -5,8 +5,10 @@ class EventInput(BaseModel):
     id: Optional[int] = None
     event_type: str = Field(..., description="E.g., unplanned, planned")
     event_cause: Optional[str] = "Unknown"
-    latitude: float
-    longitude: float
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    attendance: Optional[int] = None
+    duration: Optional[int] = None
     start_datetime: str
     corridor: Optional[str] = "Unknown"
     police_station: Optional[str] = "Unknown"
@@ -16,8 +18,12 @@ class EventInput(BaseModel):
     veh_type: Optional[str] = "Unknown"
     priority: Optional[str] = None
     requires_road_closure: Optional[bool] = None
+    closure_status: Optional[str] = None
     description: Optional[str] = ""
     comment: Optional[str] = ""
+    city: Optional[str] = "Unknown"
+    state: Optional[str] = "Unknown"
+    country: Optional[str] = "Unknown"
 
     model_config = {
         "json_schema_extra": {

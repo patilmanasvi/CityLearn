@@ -1,9 +1,50 @@
 // @ts-nocheck
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function Page() {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    address: "",
+    department: "",
+    role: "",
+    country: "",
+    state: "",
+    city: "",
+  });
+
+  useEffect(() => {
+    fetch("/api/auth/profile")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setUser(data.user);
+          setEditForm({
+            name: data.user.name || "",
+            email: data.user.email || "",
+            address: data.user.address || "",
+            department: data.user.department || "",
+            role: data.user.role || "",
+            country: data.user.country || "",
+            state: data.user.state || "",
+            city: data.user.city || "",
+          });
+        } else {
+          window.location.href = "/sign-in";
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching user profile:", err);
+        setLoading(false);
+      });
+  }, []);
+
   useEffect(() => {
     const runScript = () => {
       try {
@@ -22,6 +63,74 @@ export default function Page() {
     };
     runScript();
   }, []);
+
+  const getInitials = (name?: string) => {
+    if (!name) return "";
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
+  const getAvatarBg = (name?: string) => {
+    if (!name) return "from-purple-600 to-indigo-600";
+    const colors = [
+      "from-purple-600 to-indigo-600",
+      "from-blue-600 to-cyan-600",
+      "from-emerald-600 to-teal-600",
+      "from-orange-600 to-amber-600",
+      "from-rose-600 to-pink-600",
+      "from-violet-600 to-fuchsia-600"
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % colors.length;
+    return colors[index];
+  };
+
+  const handleDeleteProfile = async () => {
+    const confirmed = window.confirm("Are you absolutely sure you want to permanently delete your profile? This action cannot be undone.");
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch("/api/auth/profile", {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert("Your profile has been permanently deleted.");
+        window.location.href = "/sign-in";
+      } else {
+        alert(data.message || "Failed to delete profile. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting profile:", error);
+      alert("An error occurred. Please try again.");
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("/api/auth/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setUser(data.user);
+        setIsEditOpen(false);
+        alert("Profile updated successfully!");
+      } else {
+        alert(data.message || "Failed to update profile.");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("An error occurred. Please try again.");
+    }
+  };
 
   return (
     <>
@@ -52,30 +161,35 @@ export default function Page() {
               
               {/* Profile Image */}
               <div className="relative">
-                <div className="w-32 h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-border shadow-sm bg-slate-50">
-                  <img
-                    alt="Alex Rivera"
-                    className="w-full h-full object-cover"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuACVQnt-rJcIEaj8Zesz9MBf202MGlkB06ZVjxbP89q41K35mVAh7BoZ8PdYs-isZTcp5qit1kGpgN1lhFPIA3h98_R6-8-q4WMq7zDlJrmW4l9N2L8Hv7kOE1VABccz8RMfML1BKD3T4C2JDWugDilheruhvpiq14e88M_MWIxBpl1zjJSX_rwROAl3_xCNYT_0rQoFMOhcUwIXfWG8FXfnONrHq2zGtZT6R9Z17ZvjwWPtzUmEjGbUVrma55dABB6-Q4dtyjTniA"
-                  />
+                <div className="w-32 h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border border-border shadow-sm bg-slate-50 flex items-center justify-center">
+                  {user?.name ? (
+                    <div className={`w-full h-full bg-gradient-to-br ${getAvatarBg(user.name)} text-white flex items-center justify-center text-4xl font-extrabold select-none`}>
+                      {getInitials(user.name)}
+                    </div>
+                  ) : (
+                    <div className="w-full h-full bg-slate-100 animate-pulse" />
+                  )}
                 </div>
-                <button className="absolute -bottom-2 -right-2 w-9 h-9 bg-primary text-white rounded-lg shadow-sm flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+                <button 
+                  onClick={() => setIsEditOpen(true)}
+                  className="absolute -bottom-2 -right-2 w-9 h-9 bg-primary text-white rounded-lg shadow-sm flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
+                >
                   <span className="material-symbols-outlined text-[18px]">edit</span>
                 </button>
               </div>
 
               {/* User Metadata */}
               <div className="text-center md:text-left space-y-2 flex-grow">
-                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground leading-tight">Alex Rivera</h2>
+                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground leading-tight">{user?.name || (loading ? "Loading..." : "Guest")}</h2>
                 <p className="text-muted-foreground text-sm">
-                  Senior Urban Logistics Architect • City Operations AI
+                  {user?.role || (loading ? "Loading..." : "Operator")} • {user?.department || (loading ? "Loading..." : "Operations")}
                 </p>
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-xs text-muted-foreground pt-2 border-t border-slate-100">
                   <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">location_on</span> San Francisco, CA
+                    <span className="material-symbols-outlined text-sm">location_on</span> {user?.city ? `${user.city}, ${user.state || ""}`.trim() : (loading ? "Loading..." : "Unknown Location")}
                   </span>
                   <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">mail</span> a.rivera@citylearn.gov
+                    <span className="material-symbols-outlined text-sm">mail</span> {user?.email || (loading ? "Loading..." : "No Email")}
                   </span>
                 </div>
               </div>
@@ -92,7 +206,10 @@ export default function Page() {
               </h3>
               
               <div className="space-y-3">
-                <button className="w-full group flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/70 border border-border rounded-xl transition-all">
+                <button 
+                  onClick={() => setIsEditOpen(true)}
+                  className="w-full group flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/70 border border-border rounded-xl transition-all"
+                >
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-primary text-lg">person_edit</span>
                     <span className="text-xs font-bold text-foreground">Edit Profile</span>
@@ -100,20 +217,15 @@ export default function Page() {
                   <span className="material-symbols-outlined text-muted-foreground text-base group-hover:translate-x-1 transition-transform">chevron_right</span>
                 </button>
                 
-                <button className="w-full group flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/70 border border-border rounded-xl transition-all">
+                <button 
+                  onClick={handleDeleteProfile}
+                  className="w-full group flex items-center justify-between p-3.5 bg-red-50 hover:bg-red-100/70 border border-red-200 rounded-xl transition-all"
+                >
                   <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-secondary text-lg">map</span>
-                    <span className="text-xs font-bold text-foreground">Location Settings</span>
+                    <span className="material-symbols-outlined text-red-600 text-lg">delete</span>
+                    <span className="text-xs font-bold text-red-600">Delete Profile</span>
                   </div>
-                  <span className="material-symbols-outlined text-muted-foreground text-base group-hover:translate-x-1 transition-transform">chevron_right</span>
-                </button>
-                
-                <button className="w-full group flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/70 border border-border rounded-xl transition-all">
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-amber-600 text-lg">security</span>
-                    <span className="text-xs font-bold text-foreground">Security &amp; Access</span>
-                  </div>
-                  <span className="material-symbols-outlined text-muted-foreground text-base group-hover:translate-x-1 transition-transform">chevron_right</span>
+                  <span className="material-symbols-outlined text-red-600 text-base group-hover:translate-x-1 transition-transform">chevron_right</span>
                 </button>
               </div>
             </div>
@@ -279,6 +391,120 @@ export default function Page() {
         </section>
 
       </div>
+
+      {/* Edit Profile Modal */}
+      {isEditOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white border border-border rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="p-6 border-b border-border flex items-center justify-between">
+              <h3 className="text-lg font-bold text-foreground">Edit Profile</h3>
+              <button 
+                onClick={() => setIsEditOpen(false)}
+                className="p-1 rounded-lg hover:bg-slate-100 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            {/* Form */}
+            <form onSubmit={handleEditSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Name</label>
+                  <input 
+                    type="text"
+                    required
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    className="w-full bg-slate-50 border border-border rounded-lg p-2.5 text-sm text-foreground focus:bg-white focus:border-primary focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Email</label>
+                  <input 
+                    type="email"
+                    required
+                    value={editForm.email}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    className="w-full bg-slate-50 border border-border rounded-lg p-2.5 text-sm text-foreground focus:bg-white focus:border-primary focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1 md:col-span-2">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Address</label>
+                  <input 
+                    type="text"
+                    value={editForm.address}
+                    onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                    className="w-full bg-slate-50 border border-border rounded-lg p-2.5 text-sm text-foreground focus:bg-white focus:border-primary focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Department</label>
+                  <input 
+                    type="text"
+                    value={editForm.department}
+                    onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
+                    className="w-full bg-slate-50 border border-border rounded-lg p-2.5 text-sm text-foreground focus:bg-white focus:border-primary focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Role</label>
+                  <input 
+                    type="text"
+                    value={editForm.role}
+                    onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                    className="w-full bg-slate-50 border border-border rounded-lg p-2.5 text-sm text-foreground focus:bg-white focus:border-primary focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Country</label>
+                  <input 
+                    type="text"
+                    value={editForm.country}
+                    onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
+                    className="w-full bg-slate-50 border border-border rounded-lg p-2.5 text-sm text-foreground focus:bg-white focus:border-primary focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">State</label>
+                  <input 
+                    type="text"
+                    value={editForm.state}
+                    onChange={(e) => setEditForm({ ...editForm, state: e.target.value })}
+                    className="w-full bg-slate-50 border border-border rounded-lg p-2.5 text-sm text-foreground focus:bg-white focus:border-primary focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1 md:col-span-2">
+                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">City</label>
+                  <input 
+                    type="text"
+                    value={editForm.city}
+                    onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                    className="w-full bg-slate-50 border border-border rounded-lg p-2.5 text-sm text-foreground focus:bg-white focus:border-primary focus:outline-none"
+                  />
+                </div>
+              </div>
+              
+              {/* Actions */}
+              <div className="pt-4 border-t border-border flex items-center justify-end gap-3">
+                <button 
+                  type="button"
+                  onClick={() => setIsEditOpen(false)}
+                  className="px-4 py-2 border border-border rounded-lg text-sm text-foreground hover:bg-slate-50 active:scale-95 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:brightness-105 active:scale-95 transition-all flex items-center gap-1"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }

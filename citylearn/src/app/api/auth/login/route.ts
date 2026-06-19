@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { findUserByEmail, normalizeEmail, toPublicUser, verifyPassword } from "@/lib/users";
+import { connectDB } from "@/lib/db";
+import User from "@/models/User";
+import { verifyPassword } from "@/lib/auth";
+import { cookies } from "next/headers";
 
 export async function POST(request: NextRequest) {
   try {
+    await connectDB();
     const body = await request.json();
     const email = typeof body.email === "string" ? body.email : "";
     const password = typeof body.password === "string" ? body.password : "";
@@ -14,7 +18,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = findUserByEmail(email);
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
       return NextResponse.json(
@@ -23,7 +28,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const passwordValid = verifyPassword(password, user.passwordHash, user.passwordSalt);
+    const passwordValid = verifyPassword(password, user.password);
 
     if (!passwordValid) {
       return NextResponse.json(
@@ -32,11 +37,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Set cookie session
+    const cookieStore = await cookies();
+    cookieStore.set("userId", user._id.toString(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: "/",
+    });
+
     return NextResponse.json(
       {
         success: true,
         message: "Login successful.",
-        user: toPublicUser(user),
+        user: {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          department: user.department,
+          role: user.role,
+          country: user.country,
+          state: user.state,
+          city: user.city,
+          createdAt: user.createdAt,
+        },
       },
       { status: 200 }
     );
